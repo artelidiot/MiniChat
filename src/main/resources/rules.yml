@@ -1,0 +1,54 @@
+# Rule options - ${project.name} file, generated with version ${project.version}
+
+
+# Should the rules be enabled globally?
+#   Setting this to false will disable ALL rules regardless if they themselves are enabled.
+enabled: false
+
+# Should we normalize any accented characters in a message before we check it against rules?
+#   This can prevent many rule bypasses without bloating the rule triggers with alterations of the same character.
+#     This will NOT prevent users from using ambiguous characters to bypass your rules, for example, using '1' in place of an 'i'.
+#   An example of how this would work if the word "example" was being checked by a rule: "éxámplé" -> "example".
+#   This does NOT modify the user's message in any way, this normalization happens internally to check for rule violations.
+strip-diacritical-marks: false
+
+# The list of rules...
+list:
+  # This rule will prevent users from using unicode symbols not found in the English alphabet.
+  #   It will also be documented with comments to introduce you to working with our rule system.
+  #   Rule IDs are used for permission assignment and should be unique to prevent conflicts.
+  - id: 'unicode'
+    # Should this specific rule be enabled?
+    enabled: false
+    # Setting any of these checks to false will disable this rule being checked for within that action.
+    #   They work on an opt-out basis and do not need to be defined unless you want an action excluded.
+    check-anvils: true
+    check-books: true
+    check-chat: true
+    check-commands: true
+    check-signs: true
+    # Should violations of this rule be cancelled?
+    #   Both 'replace' and 'replacement' do not need to be defined if violations will be cancelled.
+    cancel: false
+    # Should violations of this rule be replaced?
+    #   'cancel' does not need to be defined if violations will be replaced.
+    replace: true
+    # The character(s) that will replace the violation.
+    #   This can be left blank or undefined if you want violations to be replaced with nothing.
+    replacement: "?"
+    # Should the trigger be tested against RegEx?
+    #   Don't know what RegEx is? You can read more about it here: https://en.wikipedia.org/wiki/regular_expression
+    #   Need to test your RegEx? You can do so here: https://regex101.com (Make sure to change the flavor to Java!)
+    regex: true
+    # The trigger itself
+    #   When using RegEx parsing, you must surround the trigger with 'apostrophes' instead of "quotation marks"!
+    trigger: '(?!\p{Sc})([^\p{InBasic_Latin}]+)'
+    # The message sent to users when they violate this rule.
+    #   This can be left blank or undefined if a message is not desired.
+    #   You can access any keys from the locale file by using the "<@key>" syntax.
+    response: "<@unicode>"
+    # The commands executed (via. console) when users violate this rule.
+    #   The most common use case for this is automatically muting players.
+    #   We recommend only doing things like this if you have VERY accurate rules to prevent false punishments.
+    #   This can be left empty (by using two brackets "[ ]") or undefined if commands are not desired.
+    commands: [ ]

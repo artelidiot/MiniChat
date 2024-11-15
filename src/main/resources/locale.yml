@@ -1,0 +1,13 @@
+# Locale file - ${project.name} file, generated with version ${project.version}
+
+
+prefix: "[${project.name}]"
+version: "[${project.version}]"
+
+command-help:
+  - "<prefix>"
+command-reload-successful: "<prefix> Successfully reloaded the configuration files."
+command-reload-failed:
+  - "<prefix> Encountered an error when reloading the configuration files!"
+  - "<prefix> Affected value(s) will fall back to the default setting."
+  - "<prefix> Please check the console for more details."

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>me.artel</groupId>
+    <artifactId>MiniChat</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <name>MiniChat</name>
+    <description>A chat management plugin implementing MiniMessage.</description>
+    <url>https://www.github.com/artelidiot/MiniChat</url>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- https://github.com/SpongePowered/Configurate/releases -->
+        <configurate-version>4.1.2</configurate-version>
+        <!-- https://github.com/JorelAli/CommandAPI/releases -->
+        <commandapi-version>9.6.1</commandapi-version>
+        <!-- https://github.com/ben-manes/caffeine/releases -->
+        <caffeine-version>3.1.8</caffeine-version>
+        <!-- https://github.com/tdebatty/java-string-similarity/releases -->
+        <string-similarity-version>2.0.0</string-similarity-version>
+
+        <!-- https://github.com/MilkBowl/VaultAPI/releases -->
+        <vaultapi-version>1.7.1</vaultapi-version>
+        <!-- https://github.com/PlaceholderAPI/PlaceholderAPI/releases -->
+        <placeholderapi-version>2.11.6</placeholderapi-version>
+    </properties>
+
+
+    <repositories>
+        <repository>
+            <id>papermc.io</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>codemc.io</id>
+            <url>https://repo.codemc.io/repository/nms/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>extendedclip.com</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
+    </repositories>
+
+
+    <dependencies>
+        <!-- Documentation: https://projectlombok.org/features/ -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.36</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.3-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>configurate-yaml</artifactId>
+            <version>${configurate-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.jorel</groupId>
+            <artifactId>commandapi-bukkit-shade</artifactId>
+            <version>${commandapi-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>${caffeine-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>info.debatty</groupId>
+            <artifactId>java-string-similarity</artifactId>
+            <version>${string-similarity-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>${vaultapi-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>${placeholderapi-version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <defaultGoal>clean package</defaultGoal>
+        <finalName>${project.name}-${project.version}</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <!-- Enable filtering of Maven placeholders within our resource files -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- Documentation: https://maven.apache.org/plugins/maven-shade-plugin/ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <!-- Minimize JAR to reduce bloat -->
+                    <!-- Sometimes breaks shaded resources -->
+                    <minimizeJar>false</minimizeJar>
+                    <!-- We don't need any of this stuff -->
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <createSourcesJar>false</createSourcesJar>
+                    <createTestSourcesJar>false</createTestSourcesJar>
+                    <!-- Specify which artifacts we want (excl. anything they depend on) -->
+                    <artifactSet>
+                        <includes>
+                            <include>dev.jorel:commandapi-bukkit-shade</include>
+                            <include>com.github.ben-manes.caffeine:caffeine</include>
+                            <include>info.debatty:java-string-similarity</include>
+                        </includes>
+                    </artifactSet>
+                    <!-- Internal relocations to prevent conflicts with other plugins -->
+                    <relocations>
+                        <!--
+                        <relocation>
+                            <pattern>example.group.artifact</pattern>
+                            <shadedPattern>${project.groupId}.${project.artifactId}.lib.example-artifact</shadedPattern>
+                        </relocation>
+                        -->
+                        <relocation>
+                            <pattern>dev.jorel.commandapi</pattern>
+                            <shadedPattern>${project.groupId}.${project.artifactId}.lib.command-api</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.github.benmanes.caffeine</pattern>
+                            <shadedPattern>${project.groupId}.${project.artifactId}.lib.caffeine</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>info.debatty.java.stringsimilarity</pattern>
+                            <shadedPattern>${project.groupId}.${project.artifactId}.lib.string-similarity</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    <!-- Filter what we do and do not want from the shaded dependencies themselves -->
+                    <filters>
+                        <!--
+                        <filter>
+                            <artifact>ExampleArtifact:ExampleArtifact</artifact>
+                            <includes>
+                                <include>com/example/package/IncludeExample.class</include>
+                            </includes>
+                            <excludes>
+                                <exclude>com/example/package/ExcludeExample.class</exclude>
+                            </excludes>
+                        </filter>
+                        -->
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>**/META-INF/**</exclude>
+                                <exclude>**/package-info.class</exclude>
+                                <exclude>**/module-info.class</exclude>
+                                <exclude>**/LICENSE*</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <!-- Specify when to shade -->
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

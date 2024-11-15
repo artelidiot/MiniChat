@@ -1,0 +1,26 @@
+# Message of the day options - ${project.name} file, generated with version ${project.version}
+
+
+# Should the message of the day be globally enabled?
+enabled: false
+
+# The list of messages...
+list:
+  - id: 'generic-example'
+    enabled: false
+    delay: 1000
+    content: "Hello, <player-display-name>!"
+  - id: 'generic-example-two'
+    enabled: false
+    delay: 1000
+    content: |
+      Hello, <player-display-name>!
+      This is an example multi-line message of the day from ${project.name}!
+  - id: 'generic-conditional-example'
+    enabled: false
+    delay: 1000
+    conditions:
+      has-played-before: true
+    content: |
+      Welcome back, <player-display-name>!
+      This is an example conditional message of the day from ${project.name}!

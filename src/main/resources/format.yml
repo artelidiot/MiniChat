@@ -1,0 +1,30 @@
+# Chat formatting options - ${project.name} file, generated with version ${project.version}
+
+
+# Order of format display: Player -> Group -> Global.
+#   This means if one user has both a player AND group format, the format displayed will be their player format.
+# Placeholders:
+#   PlaceholderAPI (external): https://www.spigotmc.org/resources/6245/
+#   Player:
+#     <player-name> - The player's username.
+#     <player-display-name> - The player's display name (aka. nickname).
+#     <message> - The player's chat message.
+
+# Should we format the chat?
+enabled: false
+
+# Global format
+global-format: "<player-display-name>: <message>"
+
+# Group formats
+#   The user's primary group is determined by Vault.
+group-formats:
+  # For example, here is a unique format for the 'default' group, usually supplied by LuckPerms.
+  - group: "default"
+    format: "[Default] <player-display-name>: <message>"
+
+# Player formats
+player-formats:
+  # For example, here is a unique format for Minecraft's original author, Notch.
+  - player: "069a79f4-44e9-4726-a5be-fca90e38aaf5"
+    format: "[Mojang] <player-name>: <message>"

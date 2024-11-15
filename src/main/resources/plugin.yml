@@ -1,0 +1,66 @@
+name: "MiniChat"
+author: "Artel"
+description: "${project.description}"
+website: "${project.url}"
+
+version: "${project.version}"
+main: me.artel.minichat.MiniChatPlugin
+api-version: "1.13"
+
+permissions:
+  'minichat.*':
+    description: "Grants access to everything from MiniChat."
+    default: op
+    children:
+
+      # Permissions for commands, sub-commands, etc.
+      'minichat.command.*':
+        description: "Grants access to all commands."
+        children:
+          'minichat.command':
+            description: "Grants access to the MiniChat command."
+          'minichat.command.clear':
+            description: "Grants access to clear the chat."
+          'minichat.command.motd':
+            description: "Grants access to view the MOTD."
+          'minichat.command.reload':
+            description: "Grants access to reload MiniChat."
+
+      # Permission to view all announcements.
+      # Individual announcement viewing permissions are registered at runtime via. identifiers.
+      'minichat.announcement.*':
+        description: "Grants access to view all announcements."
+
+      # Permissions for bypassing rules, checks, etc.
+      'minichat.bypass.*':
+        description: "Grants access to bypass all rules, checks, etc."
+        children:
+          # Individual rule bypass permissions are registered at runtime via. identifiers.
+          'minichat.bypass.rule.*':
+            description: "Grants access to bypass all rules."
+          'minichat.bypass.chat.*':
+            description: "Grants access to bypass chat clearing and all chat checks."
+            children:
+              'minichat.bypass.chat.clear':
+                description: "Grants access to bypass chat clearing."
+              'minichat.bypass.chat.delay':
+                description: "Grants access to bypass the chat delay."
+              'minichat.bypass.chat.movement':
+                description: "Grants access to bypass the chat movement requirement."
+              'minichat.bypass.chat.parrot':
+                description: "Grants access to bypass the parrot check."
+              'minichat.bypass.chat.similarity':
+                description: "Grants access to bypass the chat similarity check."
+              'minichat.bypass.chat.uppercase':
+                description: "Grants access to bypass the chat excessive uppercase check."
+          'minichat.bypass.command.*':
+            description: "Grants access to bypass all command checks."
+            children:
+              'minichat.bypass.command.delay':
+                description: "Grants access to bypass the command delay."
+              'minichat.bypass.command.movement':
+                description: "Grants access to bypass the command movement requirement."
+              'minichat.bypass.command.similarity':
+                description: "Grants access to bypass the command similarity check."
+              'minichat.bypass.command.uppercase':
+                description: "Grants access to bypass the command excessive uppercase check."

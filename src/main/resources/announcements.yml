@@ -1,0 +1,19 @@
+# Announcement options - ${project.name} file, generated with version ${project.version}
+
+
+# Should announcements be globally enabled?
+enabled: false
+
+# The frequency of the announcements (in seconds)
+frequency: 300
+
+# The list of announcements...
+list:
+  - id: 'generic-example'
+    enabled: false
+    content: "Hello, <player-display-name>!"
+  - id: 'generic-example-two'
+    enabled: false
+    content: |-
+      Hello, <player-display-name>!
+      This is an example multi-line announcement from ${project.name}!
