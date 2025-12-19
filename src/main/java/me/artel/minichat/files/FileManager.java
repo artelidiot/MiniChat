@@ -14,21 +14,21 @@ public class FileManager {
     private static final JavaPlugin plugin = MiniChatPlugin.getInstance();
 
     private static final YAMLFile
-            announcementsFile = new YAMLFile(plugin, "announcements.yml"),
-            formatFile = new YAMLFile(plugin, "format.yml"),
-            localeFile = new YAMLFile(plugin, "locale.yml"),
-            motdFile = new YAMLFile(plugin, "motd.yml"),
-            optionsFile = new YAMLFile(plugin, "options.yml"),
-            rulesFile = new YAMLFile(plugin, "rules.yml");
+        announcementsFile = new YAMLFile(plugin, "announcements.yml"),
+        formatFile = new YAMLFile(plugin, "format.yml"),
+        localeFile = new YAMLFile(plugin, "locale.yml"),
+        motdFile = new YAMLFile(plugin, "motd.yml"),
+        optionsFile = new YAMLFile(plugin, "options.yml"),
+        rulesFile = new YAMLFile(plugin, "rules.yml");
 
     private static final ImmutableList<YAMLFile> files = ImmutableList.<YAMLFile>builder()
-            .add(announcementsFile)
-            .add(formatFile)
-            .add(localeFile)
-            .add(motdFile)
-            .add(optionsFile)
-            .add(rulesFile)
-            .build();
+        .add(announcementsFile)
+        .add(formatFile)
+        .add(localeFile)
+        .add(motdFile)
+        .add(optionsFile)
+        .add(rulesFile)
+        .build();
 
     public static void saveFiles() {
         files.forEach(YAMLFile::save);

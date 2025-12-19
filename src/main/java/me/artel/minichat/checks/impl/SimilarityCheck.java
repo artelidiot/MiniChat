@@ -6,15 +6,13 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 
-import info.debatty.java.stringsimilarity.JaroWinkler;
 import me.artel.minichat.checks.MiniCheck;
 import me.artel.minichat.files.FileAccessor;
 import me.artel.minichat.util.MiniParser;
+import me.artel.minichat.util.MiniUtil;
 import net.kyori.adventure.text.Component;
 
 public class SimilarityCheck implements MiniCheck {
-    private static final JaroWinkler jaroWinkler = new JaroWinkler();
-
     private static final HashMap<UUID, String> chatHistoryMap = new HashMap<>();
     private static final HashMap<UUID, String> commandHistoryMap = new HashMap<>();
 
@@ -35,9 +33,8 @@ public class SimilarityCheck implements MiniCheck {
     }
 
     public static void handle(Player player, Cancellable e) {
-        // TODO: Send message
+        // TODO: Send message here?
         e.setCancelled(true);
-        player.sendMessage("similarity");
     }
 
     private static boolean similar(Player player, String input, Action action) {
@@ -47,17 +44,19 @@ public class SimilarityCheck implements MiniCheck {
         }
 
         var similarity = action.equals(Action.CHAT)
-                ? FileAccessor.OPTIONS_CHAT_SIMILARITY
-                : FileAccessor.OPTIONS_COMMAND_SIMILARITY;
+            ? FileAccessor.OPTIONS_CHAT_SIMILARITY
+            : FileAccessor.OPTIONS_COMMAND_SIMILARITY;
 
         // This check is not enabled, do nothing
         if (similarity < 1) {
             return false;
         }
 
+        // TODO Ignore usernames & ignore list
+
         var threshold = action.equals(Action.CHAT)
-                ? FileAccessor.OPTIONS_CHAT_SIMILARITY_THRESHOLD
-                : FileAccessor.OPTIONS_COMMAND_SIMILARITY_THRESHOLD;
+            ? FileAccessor.OPTIONS_CHAT_SIMILARITY_THRESHOLD
+            : FileAccessor.OPTIONS_COMMAND_SIMILARITY_THRESHOLD;
 
         // Check if the input's length exceeds the threshold for this check
         if (input.length() < threshold) {
@@ -65,8 +64,8 @@ public class SimilarityCheck implements MiniCheck {
         }
 
         var historyMap = action.equals(Action.CHAT)
-                ? chatHistoryMap
-                : commandHistoryMap;
+            ? chatHistoryMap
+            : commandHistoryMap;
 
         // If there's no data to compare to, we cannot continue
         if (!historyMap.containsKey(player.getUniqueId())) {
@@ -75,7 +74,18 @@ public class SimilarityCheck implements MiniCheck {
             return false;
         }
 
-        // Finally, check if the input's similarity exceeds the mapped data
-        return jaroWinkler.similarity(historyMap.get(player.getUniqueId()), input) > similarity;
+        // Check if the input's similarity to the previous data exceeds the threshold
+        if (MiniUtil.getJaroWinkler().similarity(historyMap.get(player.getUniqueId()), input) > similarity) {
+            var similarityMessage = action.equals(Action.CHAT)
+                ? FileAccessor.LOCALE_CHAT_SIMILARITY
+                : FileAccessor.LOCALE_COMMAND_SIMILARITY;
+
+            // Notify the player
+            player.sendMessage(MiniParser.parseAll(similarityMessage, player));
+            // Their message is too similar, cancel it
+            return true;
+        } else {
+            return false;
+        }
     }
 }

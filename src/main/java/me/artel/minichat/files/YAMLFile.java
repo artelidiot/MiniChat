@@ -30,8 +30,8 @@ public class YAMLFile {
         save();
 
         this.loader = YamlConfigurationLoader.builder()
-                .file(file)
-                .build();
+            .file(file)
+            .build();
 
         this.node = loader.load();
     }

@@ -7,6 +7,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -16,6 +17,7 @@ import me.artel.minichat.checks.impl.SimilarityCheck;
 import me.artel.minichat.checks.impl.UppercaseCheck;
 import me.artel.minichat.files.FileAccessor;
 import me.artel.minichat.logic.Formatter;
+import me.artel.minichat.logic.MOTD;
 import me.artel.minichat.logic.Rule;
 
 public class PlayerListeners implements Listener {
@@ -34,8 +36,7 @@ public class PlayerListeners implements Listener {
             // Check if this rule is being checked against anvils and if it matches
             if (rule.checkAnvils() && rule.matcher((Player) e.getViewers().getFirst(), renameText)) {
                 // Prevent the item from being created if the rule is being cancelled or replaced
-                // This would be excessively complicated if we allowed replacements here
-                // TODO: Allow replacements here
+                // TODO: Allow replacements here?
                 if (rule.cancel() || rule.replace()) {
                     e.setResult(null);
                 }
@@ -51,7 +52,6 @@ public class PlayerListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerChat(AsyncChatEvent e) {
-        // TODO
         if (DelayCheck.chat(e.getPlayer())) {
             DelayCheck.handle(e.getPlayer(), e);
         }
@@ -78,8 +78,7 @@ public class PlayerListeners implements Listener {
             }
         }
 
-        // TODO: Use this to format the chat, however, replacements will cause the message to show up as modified
-        // What a dumb "feature", Mojang.
+        // TODO: Find a workaround for the message showing up as "modified" when replacements are run by rules on messages
         // Render the message as viewer unaware as we don't need to show each user a unique format
         if (FileAccessor.FORMAT_ENABLED) {
             e.renderer(ChatRenderer.viewerUnaware((player, playerDisplayName, message) -> Formatter.get(player, message)));
@@ -88,7 +87,6 @@ public class PlayerListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
-        // TODO
         if (DelayCheck.command(e.getPlayer())) {
             DelayCheck.handle(e.getPlayer(), e);
         }
@@ -96,8 +94,6 @@ public class PlayerListeners implements Listener {
         if (MovementCheck.command(e.getPlayer())) {
             MovementCheck.handle(e.getPlayer(), e);
         }
-
-        // TODO: Parrot
 
         if (SimilarityCheck.command(e.getPlayer(), e.getMessage())) {
             SimilarityCheck.handle(e.getPlayer(), e);
@@ -119,5 +115,12 @@ public class PlayerListeners implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onSignChange(SignChangeEvent e) {
         // TODO
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        if (FileAccessor.MOTD_ENABLED) {
+            MOTD.sendRandom(e.getPlayer());
+        }
     }
 }

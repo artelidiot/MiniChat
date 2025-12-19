@@ -1,9 +1,5 @@
 package me.artel.minichat;
 
-import static me.artel.minichat.commands.CommandManager.Stage.DISABLE;
-import static me.artel.minichat.commands.CommandManager.Stage.ENABLE;
-import static me.artel.minichat.commands.CommandManager.Stage.LOAD;
-
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,6 +10,7 @@ import me.artel.minichat.files.FileManager;
 import me.artel.minichat.hooks.HookManager;
 import me.artel.minichat.listeners.PlayerListeners;
 import me.artel.minichat.logic.Formatter;
+import me.artel.minichat.logic.MOTD;
 import me.artel.minichat.logic.Rule;
 
 public class MiniChatPlugin extends JavaPlugin {
@@ -21,14 +18,9 @@ public class MiniChatPlugin extends JavaPlugin {
     private static MiniChatPlugin instance;
 
     @Override
-    public void onLoad() {
+    public void onEnable() {
         instance = this;
 
-        CommandManager.handle(LOAD);
-    }
-
-    @Override
-    public void onEnable() {
         // Hook initialization
         HookManager.handle();
 
@@ -36,15 +28,10 @@ public class MiniChatPlugin extends JavaPlugin {
         reload();
 
         // Command initialization
-        CommandManager.handle(ENABLE);
+        CommandManager.handle();
 
         // Listener initialization
         Bukkit.getPluginManager().registerEvents(new PlayerListeners(), this);
-    }
-
-    @Override
-    public void onDisable() {
-        CommandManager.handle(DISABLE);
     }
 
     /**
@@ -55,7 +42,7 @@ public class MiniChatPlugin extends JavaPlugin {
         FileAccessor.update();
 
         Formatter.update();
-        // MOTD.update();
+        MOTD.repopulate();
         Rule.repopulate();
     }
 }

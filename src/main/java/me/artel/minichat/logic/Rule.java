@@ -2,7 +2,6 @@ package me.artel.minichat.logic;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -27,17 +26,6 @@ import net.kyori.adventure.text.TextReplacementConfig;
 public class Rule {
     @Getter
     private static final ArrayList<Rule> rules = new ArrayList<>();
-    private static final Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+", Pattern.CASE_INSENSITIVE);
-    private static final String patternException = """
-            Error creating rule: %s
-            Pattern: '%s' is invalid!
-            Info: %s
-            """;
-    private static final String malformedCommandException = """
-            Error creating rule: %s
-            All commands must be a String, surrounded by "quotations" or 'apostrophes'!
-            Info: %s
-            """;
 
     private static Rule instance;
     private String identifier;
@@ -49,6 +37,19 @@ public class Rule {
     private String trigger, response;
     private Pattern triggerPattern;
     private List<String> commands;
+
+    private static final Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+", Pattern.CASE_INSENSITIVE);
+
+    private static final String patternException = """
+        Error creating rule: %s
+        Pattern: '%s' is invalid!
+        Info: %s
+        """;
+    private static final String malformedCommandException = """
+        Error creating rule: %s
+        All commands must be a String, surrounded by "quotations" or 'apostrophes'!
+        Info: %s
+        """;
 
     public Rule(ConfigurationNode ruleNode) {
         // We don't need to do anything at all if rules are not enabled
@@ -62,11 +63,10 @@ public class Rule {
         }
 
         // Create the identifier for the rule
-        // TODO: Support multiple aliases for creating an identifier?
         this.identifier = ruleNode.node("id").getString();
 
         // Create the rule
-        this.checkAnvils = ruleNode.node("check-anvils", true).getBoolean(true);
+        this.checkAnvils = ruleNode.node("check-anvils").getBoolean(true);
         this.checkBooks = ruleNode.node("check-books").getBoolean(true);
         this.checkChat = ruleNode.node("check-chat").getBoolean(true);
         this.checkCommands = ruleNode.node("check-commands").getBoolean(true);
@@ -92,11 +92,11 @@ public class Rule {
         }
 
         try {
-            this.commands = ruleNode.node("commands").getList(String.class, Collections.emptyList());
+            this.commands = ruleNode.node("commands").getList(String.class, List.of());
         } catch (SerializationException e) {
             this.enabled = false;
             MiniChatPlugin.getInstance().getLogger().warning(
-                    malformedCommandException.formatted(identifier, e.getMessage())
+                malformedCommandException.formatted(identifier, e.getMessage())
             );
             return;
         }
@@ -141,14 +141,14 @@ public class Rule {
         if (FileAccessor.RULES_STRIP_DIACRITICAL_MARKS) {
             // Replace all diacritical marks with nothing
             input = Normalizer.normalize(input, Normalizer.Form.NFD)
-                    .replaceAll(diacriticPattern.pattern(), "");
+                .replaceAll(diacriticPattern.pattern(), "");
         }
 
         return regex
-                // Match to a proper RegEx if it is enabled
-                ? triggerPattern.matcher(input).find()
-                // Match to a standard string check otherwise
-                : input.toLowerCase(Locale.ROOT).contains(trigger.toLowerCase(Locale.ROOT));
+            // Match to a proper RegEx if it is enabled
+            ? triggerPattern.matcher(input).find()
+            // Match to a standard string check otherwise
+            : input.toLowerCase(Locale.ROOT).contains(trigger.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -186,17 +186,17 @@ public class Rule {
             // Replace the matches with the corresponding trigger
             if (regex) {
                 input = input.replaceText(
-                        TextReplacementConfig.builder()
-                                .match(triggerPattern)
-                                .replacement(replacement)
-                                .build()
+                    TextReplacementConfig.builder()
+                        .match(triggerPattern)
+                        .replacement(replacement)
+                        .build()
                 );
             } else {
                 input = input.replaceText(
-                        TextReplacementConfig.builder()
-                                .matchLiteral(trigger)
-                                .replacement(replacement)
-                                .build()
+                    TextReplacementConfig.builder()
+                        .matchLiteral(trigger)
+                        .replacement(replacement)
+                        .build()
                 );
             }
         } else if (cancel) {
@@ -266,7 +266,7 @@ public class Rule {
             String finalCommand = command;
             // Execute the command explicitly on sync; errors are thrown if async
             Bukkit.getScheduler().callSyncMethod(MiniChatPlugin.getInstance(),
-                    () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
+                () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
         }
     }
 

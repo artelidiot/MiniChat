@@ -2,43 +2,59 @@
 
 
 # Chat and command delay settings
-#   If a user's action is performed too quickly, it will be blocked.
+#   If a player's action is performed too quickly, it will be blocked.
 #   The delay is in milliseconds.
 chat-delay: 0
 command-delay: 0
 
 # Chat and command movement requirement settings
-#   When a user first joins, should they be required to move to perform actions?
-#   This can prevent bots from flooding the chat or spamming commands, but may annoy users.
+#   When a player first joins, should moving be required to perform actions?
+#   This can prevent bots from flooding the chat or spamming commands, but may annoy players.
 movement-required-chat: false
 movement-required-command: false
 
 # Chat parroting settings
-#   If a user's message is too similar to the previous one, it will be blocked.
+#   If a player's message is too similar to the previous one, it will be blocked.
 #   Valid ranges are 0-100, 0 being disabled, 100 being an exact match to the previous message.
-#   Decay controls how long the most recent chat message is active for.
+#   Decay controls how long the most recent chat message is tracked (in milliseconds).
 #   Threshold controls how long the chat message needs to be before we check it for parroting.
+#   Ignore usernames controls whether the check ignores player usernames.
+#   Ignore list is a list of words that will be ignored by the check.
 chat-parroting: 0
 chat-parroting-decay: 5000
 chat-parroting-threshold: 6
+chat-parroting-ignore-usernames: false
+chat-parroting-ignore-list: [ ]
 
 # Chat and command similarity settings
-#   If a user's action is too similar to their previous one, it will be blocked.
+#   If a player's action is too similar to their previous one, it will be blocked.
 #   Valid ranges are 0-100, 0 being disabled, 100 being an exact match to the previous action.
 #   Threshold controls how long the action needs to be before we check it for similarity.
+#   Ignore usernames controls whether the check ignores player usernames.
+#   Ignore list is a list of words that will be ignored by the check.
 chat-similarity: 0
 chat-similarity-threshold: 6
+chat-similarity-ignore-usernames: false
+chat-similarity-ignore-list: [ ]
 command-similarity: 0
 command-similarity-threshold: 12
+command-similarity-ignore-usernames: true
+command-similarity-ignore-list: [ ]
 
 # Chat and command uppercase settings
-#   If a user's action contains too much uppercase, it can be blocked or normalized to lowercase.
+#   If a player's action contains too much uppercase, it can be blocked or normalized to lowercase.
 #   Valid ranges are 0-100, 0 being disabled, 100 being entirely uppercase.
 #   Threshold controls how long the action needs to be before we check it for excessive uppercase.
 #   Valid actions are "block" and "normalize", the former blocking the action entirely, the ladder normalizing it to lowercase.
+#   Ignore usernames controls whether the check ignores player usernames.
+#   Ignore list is a list of words that will be ignored by the check.
 chat-uppercase: 0
 chat-uppercase-threshold: 6
 chat-uppercase-action: "block"
+chat-uppercase-ignore-usernames: false
+chat-uppercase-ignore-list: [ ]
 command-uppercase: 0
 command-uppercase-threshold: 12
 command-uppercase-action: "normalize"
+command-uppercase-ignore-usernames: true
+command-uppercase-ignore-list: [ ]

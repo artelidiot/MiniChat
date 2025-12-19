@@ -1,23 +1,26 @@
 package me.artel.minichat.commands.minichat;
 
-import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 
-import dev.jorel.commandapi.CommandAPICommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import lombok.Getter;
+import me.artel.minichat.commands.minichat.subcommands.ClearSubCommand;
+import me.artel.minichat.commands.minichat.subcommands.MOTDSubCommand;
 import me.artel.minichat.commands.minichat.subcommands.ReloadSubCommand;
 import me.artel.minichat.files.FileAccessor;
 
 public class MiniChatCommand {
 
-    private static final ImmutableList<CommandAPICommand> subCommands = ImmutableList.of(
-            ReloadSubCommand.getInstance()
-    );
+    private static final LiteralArgumentBuilder<CommandSourceStack>
+        commandBuilder = Commands.literal("minichat")
+            .requires(sender -> sender.getSender().hasPermission(FileAccessor.PERMISSION_COMMAND))
+            .then(ClearSubCommand.getCommand())
+            .then(MOTDSubCommand.getCommand())
+            .then(ReloadSubCommand.getCommand())
+        ;
 
     @Getter
-    public static CommandAPICommand instance = new CommandAPICommand("minichat")
-            .withPermission(FileAccessor.PERMISSION_COMMAND)
-            .withSubcommands(subCommands.toArray(new CommandAPICommand[0]))
-            .executes((sender, arguments) -> {
-                sender.sendMessage("no help here");
-            });
+    private static final LiteralCommandNode<CommandSourceStack> command = commandBuilder.build();
 }

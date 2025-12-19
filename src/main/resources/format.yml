@@ -2,7 +2,7 @@
 
 
 # Order of format display: Player -> Group -> Global.
-#   This means if one user has both a player AND group format, the format displayed will be their player format.
+#   This means if a player has both player AND group formats, the format displayed will be their player format.
 # Placeholders:
 #   PlaceholderAPI (external): https://www.spigotmc.org/resources/6245/
 #   Player:
@@ -17,7 +17,7 @@ enabled: false
 global-format: "<player-display-name>: <message>"
 
 # Group formats
-#   The user's primary group is determined by Vault.
+#   The player's primary group is determined by Vault.
 group-formats:
   # For example, here is a unique format for the 'default' group, usually supplied by LuckPerms.
   - group: "default"

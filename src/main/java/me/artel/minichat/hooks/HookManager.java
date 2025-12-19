@@ -18,6 +18,7 @@ public class HookManager {
         if (Bukkit.getPluginManager().isPluginEnabled("Vault") && chatProvider()) {
             vault = true;
         }
+
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             placeholderAPI = true;
         }
@@ -25,9 +26,11 @@ public class HookManager {
 
     public static boolean chatProvider() {
         RegisteredServiceProvider<Chat> rsp = Bukkit.getServicesManager().getRegistration(Chat.class);
+
         if (rsp == null) {
             return false;
         }
+
         vaultChat = rsp.getProvider();
         return true;
     }

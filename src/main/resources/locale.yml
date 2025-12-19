@@ -1,13 +1,44 @@
 # Locale file - ${project.name} file, generated with version ${project.version}
 
-
+# Translations for plugin placeholders
 prefix: "[${project.name}]"
 version: "[${project.version}]"
 
+# Translation for the chat being cleared.
+chat-cleared: "<warning-symbol> The chat has been cleared."
+
+# Translations for the delay checks.
+chat-delay: "<watch-symbol> Please wait <delay> before chatting again."
+command-delay: "<watch-symbol> Please wait <delay> before performing another command."
+
+# Translations for the movement checks.
+chat-movement: "<warning-symbol> Please move around to send chat messages."
+command-movement: "<warning-symbol> Please move around to perform commands."
+
+# Translations for the parrot check.
+chat-parrot: "<warning-symbol> Try not to send chat messages similar to someone else's chat message."
+
+# Translations for the similarity checks.
+chat-similarity: "<warning-symbol> Try not to send similar chat messages."
+command-similarity: "<warning-symbol> Try not to perform similar commands."
+
+# Translations for the uppercase checks.
+chat-uppercase: "<warning-symbol> Try not to use excessive uppercase in chat messages."
+command-uppercase: "<warning-symbol> Try not to use excessive uppercase in commands."
+
+# Translation for the 'unicode' rule response.
+unicode: "<warning-symbol> Please do not use special characters."
+
+# Translation for the help command.
 command-help:
-  - "<prefix>"
+  - "<prefix> <version>"
+  - "/<command-label> reload - Reload the configuration files."
+# Translation for a successful chat clear.
+command-clear-successful: "<prefix> Successfully cleared the chat."
+# Translation for a successful reload.
 command-reload-successful: "<prefix> Successfully reloaded the configuration files."
-command-reload-failed:
+# Translation for an unsuccessful reload.
+command-reload-unsuccessful:
   - "<prefix> Encountered an error when reloading the configuration files!"
   - "<prefix> Affected value(s) will fall back to the default setting."
   - "<prefix> Please check the console for more details."

@@ -1,36 +1,21 @@
 package me.artel.minichat.commands;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkitConfig;
-import dev.jorel.commandapi.CommandAPICommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import me.artel.minichat.MiniChatPlugin;
 import me.artel.minichat.commands.minichat.MiniChatCommand;
 
 public class CommandManager {
+    private static final ImmutableList<LiteralCommandNode<CommandSourceStack>> commands = ImmutableList.<LiteralCommandNode<CommandSourceStack>>builder()
+        .add(MiniChatCommand.getCommand())
+        .build();
 
-    private static final ImmutableList<CommandAPICommand> commands = ImmutableList.of(
-            MiniChatCommand.getInstance()
-    );
-
-    public static void handle(Stage stage) {
-        switch (stage) {
-            case LOAD -> CommandAPI.onLoad(
-                    new CommandAPIBukkitConfig(MiniChatPlugin.getInstance())
-                            .usePluginNamespace()
-                            .silentLogs(true)
-                            .verboseOutput(false)
-            );
-            case ENABLE -> {
-                CommandAPI.onEnable();
-                commands.forEach(CommandAPICommand::register);
-            }
-            case DISABLE -> commands.forEach(command -> CommandAPI.unregister(command.getName()));
-        }
-    }
-
-    public enum Stage {
-        LOAD, ENABLE, DISABLE
+    public static void handle() {
+        MiniChatPlugin.getInstance().getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commandLifecycle -> {
+            commands.forEach(command -> commandLifecycle.registrar().register(command));
+        });
     }
 }

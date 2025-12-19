@@ -9,11 +9,11 @@ frequency: 300
 
 # The list of announcements...
 list:
-  - id: 'generic-example'
+  - id: 'example-single-line'
     enabled: false
     content: "Hello, <player-display-name>!"
-  - id: 'generic-example-two'
+  - id: 'example-multi-line'
     enabled: false
-    content: |-
-      Hello, <player-display-name>!
-      This is an example multi-line announcement from ${project.name}!
+    content:
+      - Hello, <player-display-name>!
+      - This is an example multi-line announcement from ${project.name}!

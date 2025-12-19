@@ -13,23 +13,22 @@
     <url>https://www.github.com/artelidiot/MiniChat</url>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- https://projectlombok.org/setup/maven/ -->
+        <lombok-version>1.18.42</lombok-version>
+
         <!-- https://github.com/SpongePowered/Configurate/releases -->
-        <configurate-version>4.1.2</configurate-version>
-        <!-- https://github.com/JorelAli/CommandAPI/releases -->
-        <commandapi-version>9.6.1</commandapi-version>
+        <configurate-version>4.2.0</configurate-version>
         <!-- https://github.com/ben-manes/caffeine/releases -->
-        <caffeine-version>3.1.8</caffeine-version>
+        <caffeine-version>3.2.3</caffeine-version>
         <!-- https://github.com/tdebatty/java-string-similarity/releases -->
         <string-similarity-version>2.0.0</string-similarity-version>
 
         <!-- https://github.com/MilkBowl/VaultAPI/releases -->
         <vaultapi-version>1.7.1</vaultapi-version>
         <!-- https://github.com/PlaceholderAPI/PlaceholderAPI/releases -->
-        <placeholderapi-version>2.11.6</placeholderapi-version>
+        <placeholderapi-version>2.11.7</placeholderapi-version>
     </properties>
 
 
@@ -58,14 +57,14 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
+            <version>${lombok-version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.3-R0.1-SNAPSHOT</version>
+            <version>1.21.10-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -73,11 +72,7 @@
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-yaml</artifactId>
             <version>${configurate-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>dev.jorel</groupId>
-            <artifactId>commandapi-bukkit-shade</artifactId>
-            <version>${commandapi-version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
@@ -117,11 +112,27 @@
             </resource>
         </resources>
         <plugins>
+            <!-- Documentation: https://maven.apache.org/plugins/maven-compiler-plugin/ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
+                <configuration>
+                    <release>21</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok-version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <!-- Documentation: https://maven.apache.org/plugins/maven-shade-plugin/ -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.1</version>
                 <configuration>
                     <!-- Minimize JAR to reduce bloat -->
                     <!-- Sometimes breaks shaded resources -->
@@ -133,7 +144,6 @@
                     <!-- Specify which artifacts we want (excl. anything they depend on) -->
                     <artifactSet>
                         <includes>
-                            <include>dev.jorel:commandapi-bukkit-shade</include>
                             <include>com.github.ben-manes.caffeine:caffeine</include>
                             <include>info.debatty:java-string-similarity</include>
                         </includes>
@@ -146,10 +156,6 @@
                             <shadedPattern>${project.groupId}.${project.artifactId}.lib.example-artifact</shadedPattern>
                         </relocation>
                         -->
-                        <relocation>
-                            <pattern>dev.jorel.commandapi</pattern>
-                            <shadedPattern>${project.groupId}.${project.artifactId}.lib.command-api</shadedPattern>
-                        </relocation>
                         <relocation>
                             <pattern>com.github.benmanes.caffeine</pattern>
                             <shadedPattern>${project.groupId}.${project.artifactId}.lib.caffeine</shadedPattern>

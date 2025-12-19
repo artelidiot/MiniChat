@@ -2,25 +2,44 @@
 
 
 # Should the message of the day be globally enabled?
+#   Setting this to false will disable ALL messages regardless if they themselves are enabled.
 enabled: false
 
 # The list of messages...
 list:
-  - id: 'generic-example'
+  # Example message (Single-line)
+  - id: 'example-single-line'
+    # Should this specific message be enabled?
     enabled: false
+    # The optional delay (in milliseconds) before the message is sent to the player after they log in.
     delay: 1000
+    # The content of the message.
+    #   In this example, the message spans over a single line.
     content: "Hello, <player-display-name>!"
-  - id: 'generic-example-two'
+  # Example message (Multi-line)
+  - id: 'example-multi-line'
+    # Should this specific message be enabled?
     enabled: false
+    # The optional delay (in milliseconds) before the message is sent to the player after they log in.
     delay: 1000
-    content: |
-      Hello, <player-display-name>!
-      This is an example multi-line message of the day from ${project.name}!
-  - id: 'generic-conditional-example'
+    # The content of the message.
+    #   In this example, the message spans over multiple lines.
+    content:
+      - Hello, <player-display-name>!
+      - This is an example multi-line message of the day from ${project.name}!
+  # Example message (Conditional)
+  - id: 'example-conditional'
+    # Should this specific message be enabled?
     enabled: false
+    # The optional delay (in milliseconds) before the message is sent to the player after they log in.
     delay: 1000
+    # The list of conditions the player must meet to receive this message.
+    #   The full list of conditions can be found on the GitHub wiki page.
     conditions:
+      # In this example, only players returning to the server can see this message.
       has-played-before: true
-    content: |
-      Welcome back, <player-display-name>!
-      This is an example conditional message of the day from ${project.name}!
+    # The content of the message.
+    #   In this example, the message is unique to returning players and spans over multiple lines.
+    content:
+      - Welcome back, <player-display-name>!
+      - This is an example conditional message of the day from ${project.name}!

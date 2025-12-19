@@ -18,8 +18,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 public class Formatter {
-    // The cached global format
-    private static String globalFormat;
     // The cached map of player formats, PlayerUUID:Format
     private static final HashMap<String, String> playerFormats = new HashMap<>();
     // The cached map of group formats, GroupName:Format
@@ -27,26 +25,23 @@ public class Formatter {
 
     // The Caffeine method to obtain the group to display for a player
     private static final LoadingCache<Player, String> format = Caffeine.newBuilder()
-            // Refresh after write so the format dynamically updates
-            .refreshAfterWrite(1, TimeUnit.SECONDS)
-            .build(player -> {
-                if (playerFormats.containsKey(player.getUniqueId().toString())) {
-                    return playerFormats.get(player.getUniqueId().toString());
-                } else if (HookManager.vault() && groupFormats.containsKey(HookManager.vaultChat().getPrimaryGroup(player))) {
-                    return groupFormats.get(HookManager.vaultChat().getPrimaryGroup(player));
-                } else {
-                    return globalFormat;
-                }
-            });
+        // Refresh after write so the format dynamically updates
+        .refreshAfterWrite(1, TimeUnit.SECONDS)
+        .build(player -> {
+            if (playerFormats.containsKey(player.getUniqueId().toString())) {
+                return playerFormats.get(player.getUniqueId().toString());
+            } else if (HookManager.vault() && groupFormats.containsKey(HookManager.vaultChat().getPrimaryGroup(player))) {
+                return groupFormats.get(HookManager.vaultChat().getPrimaryGroup(player));
+            } else {
+                return FileAccessor.FORMAT_GLOBAL;
+            }
+        });
 
     public static void update() {
         // We don't need to do anything if formatting isn't enabled
         if (!FileAccessor.FORMAT_ENABLED) {
             return;
         }
-
-        // Cache the global format
-        globalFormat = FileAccessor.FORMAT_GLOBAL;
 
         // Dump any existing values
         playerFormats.clear();
@@ -81,6 +76,7 @@ public class Formatter {
 
     public static Component get(Player player, Component message) {
         // TODO: Despite this being run async, I don't want to freshly parse it every time if at all possible
+        // Maybe cache the format itself and only parse for the message placeholder? (may cause issues with nicknames not updating)
         return MiniParser.parsePlayer(
             format.get(player),
             player,

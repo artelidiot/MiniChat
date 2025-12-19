@@ -14,4 +14,9 @@ target/
 ._*
 
 # Windows
-desktop.ini
+[Dd]esktop.ini
+Thumbs.db
+
+# Linux
+.Trash-*/
+.directory

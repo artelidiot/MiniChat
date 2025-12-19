@@ -1,19 +1,32 @@
 package me.artel.minichat.util;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import info.debatty.java.stringsimilarity.JaroWinkler;
 import me.artel.minichat.MiniChatPlugin;
 
 public class MiniUtil {
+    private static final JaroWinkler jaroWinkler = new JaroWinkler();
+
     private static final String objectSerializationException = """
         Failed to serialize node at path '%s' as an Object!
         We are expecting a String or String List!
         Info: %s
         """;
+
+    /**
+     * Method to get an instance of JaroWinkler's similarity check
+     *
+     * @return - An instance of JaroWinkler
+     */
+    public static JaroWinkler getJaroWinkler() {
+        return jaroWinkler;
+    }
 
     /**
      * Method to return elapsed nanoseconds since the specified start time
@@ -53,25 +66,26 @@ public class MiniUtil {
      * @return The parsed String
      */
     public static String getStringFromObject(Object object) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        // Check if the object is a list
-        if (object instanceof List<?> list) {
-            // Stream the contents
-            list.stream()
-                    // We only want the strings
-                    .filter(String.class::isInstance)
-                    // Append said strings
-                    .forEach(stringBuilder::append);
-        } else if (object instanceof String) {
-            // It's a standard string, add it
-            stringBuilder.append(object);
-        } else {
-            // Impressive!
-            stringBuilder.append("ERROR");
-            MiniChatPlugin.getInstance().getLogger().warning("Could not parse as String: " + object);
+        // Return an empty String if the Object is null as this may be desired behavior
+        if (object == null) {
+            return "";
         }
 
-        return stringBuilder.toString();
+        // This makes our job simple
+        if (object instanceof String string) {
+            return string;
+        }
+
+        // Convert any Iterable to a single String split by line breaks
+        if (object instanceof Iterable<?> iterable) {
+            return StreamSupport.stream(iterable.spliterator(), false)
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .collect(Collectors.joining("\n"));
+        }
+
+        // Impressive!
+        MiniChatPlugin.getInstance().getLogger().warning("Could not parse as String: " + object);
+        return "ERROR";
     }
 }

@@ -1,24 +1,32 @@
 package me.artel.minichat.commands.minichat.subcommands;
 
-import dev.jorel.commandapi.CommandAPICommand;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import lombok.Getter;
+import me.artel.minichat.util.MiniParser;
 import me.artel.minichat.MiniChatPlugin;
 import me.artel.minichat.files.FileAccessor;
-import me.artel.minichat.util.MiniParser;
 
 public class ReloadSubCommand {
 
     @Getter
-    public static CommandAPICommand instance = new CommandAPICommand("reload")
-            .withPermission(FileAccessor.PERMISSION_COMMAND_RELOAD)
-            .withShortDescription("Reload MiniChat.")
-            .executes((sender, args) -> {
-                // TODO: Reload and notify
+    private static final LiteralArgumentBuilder<CommandSourceStack>
+        command = Commands.literal("reload")
+            .requires(sender -> sender.getSender().hasPermission(FileAccessor.PERMISSION_COMMAND_RELOAD))
+            .executes(ctx -> {
+
                 try {
                     MiniChatPlugin.reload();
-                    sender.sendMessage(MiniParser.parsePlugin(FileAccessor.LOCALE_COMMAND_RELOAD_SUCCESSFUL));
+                    ctx.getSource().getSender().sendMessage(MiniParser.parsePlugin(FileAccessor.LOCALE_COMMAND_RELOAD_SUCCESSFUL));
                 } catch (Exception e) {
-                    sender.sendMessage(MiniParser.parsePlugin(FileAccessor.LOCALE_COMMAND_RELOAD_FAILED));
+                    // TODO: Write more descriptive exception handlers
+                    e.printStackTrace();
+                    ctx.getSource().getSender().sendMessage(MiniParser.parsePlugin(FileAccessor.LOCALE_COMMAND_RELOAD_UNSUCCESSFUL));
                 }
+
+                return Command.SINGLE_SUCCESS;
             });
 }

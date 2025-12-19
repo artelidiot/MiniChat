@@ -14,8 +14,26 @@ public class FileAccessor {
     public static String LOCALE_PREFIX = "";
     public static String LOCALE_VERSION = "";
 
+    public static String LOCALE_CHAT_CLEARED = "";
+
+    public static String LOCALE_CHAT_DELAY = "";
+    public static String LOCALE_COMMAND_DELAY = "";
+
+    public static String LOCALE_CHAT_MOVEMENT = "";
+    public static String LOCALE_COMMAND_MOVEMENT = "";
+
+    public static String LOCALE_CHAT_PARROT = "";
+
+    public static String LOCALE_CHAT_SIMILARITY = "";
+    public static String LOCALE_COMMAND_SIMILARITY = "";
+
+    public static String LOCALE_CHAT_UPPERCASE = "";
+    public static String LOCALE_COMMAND_UPPERCASE = "";
+
+    public static String LOCALE_COMMAND_CLEAR_SUCCESSFUL = "";
+
     public static String LOCALE_COMMAND_RELOAD_SUCCESSFUL = "";
-    public static String LOCALE_COMMAND_RELOAD_FAILED = "";
+    public static String LOCALE_COMMAND_RELOAD_UNSUCCESSFUL = "";
 
     // motd.yml
     public static boolean MOTD_ENABLED = false;
@@ -69,13 +87,34 @@ public class FileAccessor {
         FORMAT_ENABLED = FileManager.getFormat().node("enabled").getBoolean(false);
         FORMAT_GLOBAL = MiniUtil.getStringFromNodeObject(FileManager.getFormat().node("global-format"));
 
+
         LOCALE_PREFIX = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("prefix"));
         LOCALE_VERSION = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("version"));
 
+        LOCALE_CHAT_CLEARED = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("chat-cleared"));
+
+        LOCALE_CHAT_DELAY = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("chat-delay"));
+        LOCALE_COMMAND_DELAY = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("command-delay"));
+
+        LOCALE_CHAT_MOVEMENT = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("chat-movement"));
+        LOCALE_COMMAND_MOVEMENT = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("command-movement"));
+
+        LOCALE_CHAT_PARROT = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("chat-parrot"));
+
+        LOCALE_CHAT_SIMILARITY = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("chat-similarity"));
+        LOCALE_COMMAND_SIMILARITY = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("command-similarity"));
+
+        LOCALE_CHAT_UPPERCASE = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("chat-uppercase"));
+        LOCALE_COMMAND_UPPERCASE = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("command-uppercase"));
+
+        LOCALE_COMMAND_CLEAR_SUCCESSFUL = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("command-clear-successful"));
+
         LOCALE_COMMAND_RELOAD_SUCCESSFUL = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("command-reload-successful"));
-        LOCALE_COMMAND_RELOAD_FAILED = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("command-reload-failed"));
+        LOCALE_COMMAND_RELOAD_UNSUCCESSFUL = MiniUtil.getStringFromNodeObject(FileManager.getLocale().node("command-reload-unsuccessful"));
+
 
         MOTD_ENABLED = FileManager.getMOTD().node("enabled").getBoolean(false);
+
 
         OPTIONS_CHAT_DELAY = FileManager.getOptions().node("chat-delay").getInt(0);
         OPTIONS_COMMAND_DELAY = FileManager.getOptions().node("command-delay").getInt(0);
@@ -96,6 +135,7 @@ public class FileAccessor {
         OPTIONS_COMMAND_UPPERCASE = FileManager.getOptions().node("command-uppercase").getInt(0);
         OPTIONS_COMMAND_UPPERCASE_THRESHOLD = FileManager.getOptions().node("command-uppercase-threshold").getInt(12);
         OPTIONS_COMMAND_UPPERCASE_ACTION = FileManager.getOptions().node("command-uppercase-action").getString("normalize");
+
 
         RULES_ENABLED = FileManager.getRules().node("enabled").getBoolean(false);
         RULES_STRIP_DIACRITICAL_MARKS = FileManager.getRules().node("strip-diacritical-marks").getBoolean(false);

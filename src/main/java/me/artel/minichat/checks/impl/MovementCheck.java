@@ -9,6 +9,7 @@ import org.bukkit.event.Cancellable;
 
 import me.artel.minichat.checks.MiniCheck;
 import me.artel.minichat.files.FileAccessor;
+import me.artel.minichat.util.MiniParser;
 
 public class MovementCheck implements MiniCheck {
     private static final HashMap<UUID, Location> movementRequiredMap = new HashMap<>();
@@ -30,15 +31,14 @@ public class MovementCheck implements MiniCheck {
     }
 
     public static void handle(Player player, Cancellable e) {
-        // TODO: Send message
+        // TODO: Send message here?
         e.setCancelled(true);
-        player.sendMessage("movement");
     }
 
     private static boolean movement(Player player, Action action) {
         var movementRequired = action.equals(Action.CHAT)
-                ? FileAccessor.OPTIONS_MOVEMENT_REQUIRED_CHAT
-                : FileAccessor.OPTIONS_MOVEMENT_REQUIRED_COMMAND;
+            ? FileAccessor.OPTIONS_MOVEMENT_REQUIRED_CHAT
+            : FileAccessor.OPTIONS_MOVEMENT_REQUIRED_COMMAND;
 
         // Run some checks to make sure this feature is enabled
         if (!movementRequired) {
@@ -56,12 +56,19 @@ public class MovementCheck implements MiniCheck {
             movementRequiredMap.remove(player.getUniqueId());
             return false;
         } else {
+            var movementMessage = action.equals(Action.CHAT)
+                ? FileAccessor.LOCALE_CHAT_MOVEMENT
+                : FileAccessor.LOCALE_COMMAND_MOVEMENT;
+
+            // Notify the player
+            player.sendMessage(MiniParser.parseAll(movementMessage, player));
             // They haven't moved, prevent their action
             return true;
         }
     }
 
     private static double distanceMoved(Player player) {
+        // Check the distance (in blocks) to the player's login location
         return player.getLocation().distance(movementRequiredMap.get(player.getUniqueId()));
     }
 }
