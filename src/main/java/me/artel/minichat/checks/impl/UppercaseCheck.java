@@ -1,7 +1,9 @@
 package me.artel.minichat.checks.impl;
 
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 
@@ -72,7 +74,40 @@ public class UppercaseCheck implements MiniCheck {
             processed = processed.substring(processed.split(" ")[0].length());
         }
 
-        // TODO Ignore usernames & ignore list
+        var ignoreUsernames = action.equals(Action.CHAT)
+            ? FileAccessor.OPTIONS_CHAT_UPPERCASE_IGNORE_USERNAMES
+            : FileAccessor.OPTIONS_COMMAND_UPPERCASE_IGNORE_USERNAMES;
+
+        // Check if we should ignore usernames
+        if (ignoreUsernames) {
+            // Iterate over online players
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                // Replace their usernames
+                processed = processed.replace(onlinePlayer.getName(), "");
+            }
+        }
+
+        var ignoreList = action.equals(Action.CHAT)
+            ? FileAccessor.OPTIONS_CHAT_UPPERCASE_IGNORE_LIST
+            : FileAccessor.OPTIONS_COMMAND_UPPERCASE_IGNORE_LIST;
+
+        // Check if the ignore list is empty
+        if (!ignoreList.isEmpty()) {
+            // Build a RegEx pattern for the ignore list
+            Pattern ignorePattern = Pattern.compile(
+                // Stream all entries
+                ignoreList.stream()
+                    // Quote it
+                    .map(Pattern::quote)
+                    // Compile them using an OR delimiter
+                    .collect(Collectors.joining("|")),
+                // The ignore list should be case-insensitive
+                Pattern.CASE_INSENSITIVE
+            );
+
+            // Run the replacements
+            processed = ignorePattern.matcher(processed).replaceAll("");
+        }
 
         var minimumThreshold = action.equals(Action.CHAT)
             ? FileAccessor.OPTIONS_CHAT_UPPERCASE_THRESHOLD
@@ -95,7 +130,7 @@ public class UppercaseCheck implements MiniCheck {
             // Get the average of ones vs. zeros, then multiply by 100 to make it a 0-100 scale
             .getAverage()) * 100;
 
-        if (uppercasePercentage >= minimumPercentage) {
+        if (uppercasePercentage > minimumPercentage) {
             var uppercaseMessage = action.equals(Action.CHAT)
                 ? FileAccessor.LOCALE_CHAT_UPPERCASE
                 : FileAccessor.LOCALE_COMMAND_UPPERCASE;

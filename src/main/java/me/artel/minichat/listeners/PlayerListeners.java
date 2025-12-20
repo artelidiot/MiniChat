@@ -11,8 +11,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import me.artel.minichat.checks.MiniCheck;
 import me.artel.minichat.checks.impl.DelayCheck;
 import me.artel.minichat.checks.impl.MovementCheck;
+import me.artel.minichat.checks.impl.ParrotCheck;
 import me.artel.minichat.checks.impl.SimilarityCheck;
 import me.artel.minichat.checks.impl.UppercaseCheck;
 import me.artel.minichat.files.FileAccessor;
@@ -60,7 +62,9 @@ public class PlayerListeners implements Listener {
             MovementCheck.handle(e.getPlayer(), e);
         }
 
-        // TODO: Parrot
+        if (ParrotCheck.chat(e.getPlayer(), e.message())) {
+            ParrotCheck.handle(e.getPlayer(), e);
+        }
 
         if (SimilarityCheck.chat(e.getPlayer(), e.message())) {
             SimilarityCheck.handle(e.getPlayer(), e);
@@ -83,6 +87,8 @@ public class PlayerListeners implements Listener {
         if (FileAccessor.FORMAT_ENABLED) {
             e.renderer(ChatRenderer.viewerUnaware((player, playerDisplayName, message) -> Formatter.get(player, message)));
         }
+
+        MiniCheck.updateChatData(e.getPlayer(), e.message());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -110,6 +116,8 @@ public class PlayerListeners implements Listener {
                 e.setMessage(rule.catcher(e.getPlayer(), e.getMessage(), e));
             }
         }
+
+        MiniCheck.updateCommandData(e.getPlayer(), e.getMessage());
     }
 
     @EventHandler(ignoreCancelled = true)

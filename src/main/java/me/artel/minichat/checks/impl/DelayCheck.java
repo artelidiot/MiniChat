@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 
+import lombok.Getter;
 import me.artel.minichat.checks.MiniCheck;
 import me.artel.minichat.files.FileAccessor;
 import me.artel.minichat.util.MiniParser;
@@ -14,8 +15,10 @@ import me.artel.minichat.util.MiniUtil;
 
 public class DelayCheck implements MiniCheck {
     // TODO: Use a Caffeine cache? Might be *slightly* more efficient than a map in this use case thanks to an #expireAfterWrite call
-    private static final HashMap<UUID, Long> chatDelayMap = new HashMap<>();
-    private static final HashMap<UUID, Long> commandDelayMap = new HashMap<>();
+    @Getter
+    private static final HashMap<UUID, Long>
+        chatDelayMap = new HashMap<>(),
+        commandDelayMap = new HashMap<>();
 
     public static boolean chat(Player player) {
         if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_DELAY)) {
@@ -66,8 +69,6 @@ public class DelayCheck implements MiniCheck {
                 return true;
             }
         } else {
-            // The player had no existing delay, put them on one
-            delayMap.put(player.getUniqueId(), System.nanoTime());
             return false;
         }
     }

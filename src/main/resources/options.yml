@@ -16,7 +16,7 @@ movement-required-command: false
 # Chat parroting settings
 #   If a player's message is too similar to the previous one, it will be blocked.
 #   Valid ranges are 0-100, 0 being disabled, 100 being an exact match to the previous message.
-#   Decay controls how long the most recent chat message is tracked (in milliseconds).
+#   Decay controls how long the latest chat message is tracked (in milliseconds).
 #   Threshold controls how long the chat message needs to be before we check it for parroting.
 #   Ignore usernames controls whether the check ignores player usernames.
 #   Ignore list is a list of words that will be ignored by the check.

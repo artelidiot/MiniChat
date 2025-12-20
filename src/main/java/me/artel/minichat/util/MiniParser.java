@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 
 import lombok.Getter;
 import me.artel.minichat.files.FileAccessor;
+import me.artel.minichat.files.FileManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -25,10 +26,19 @@ public class MiniParser {
      * @param input - The String to parse
      * @param resolvers - Any placeholders to be parsed
      * @return - The parsed Component
+     * @apiNote - Automatically handles locale file calls via. <@key> syntax
      */
     public static Component deserialize(String input, TagResolver... resolvers) {
+        var processed = input;
+
+        if (processed.startsWith("<@") && processed.endsWith(">")) {
+            processed = FileManager.getLocale()
+                .node(processed.substring(2, processed.length() - 1))
+                .getString("");
+        }
+
         return miniMessage.deserialize(
-            input,
+            processed,
             TagResolver.resolver(warningSymbol, watchSymbol),
             TagResolver.resolver(resolvers)
         );
@@ -45,23 +55,6 @@ public class MiniParser {
     }
 
     /**
-     * Method to parse a String for MiniMessage syntax, with placeholders for a Player's username and display name
-     *
-     * @param input - The String to parse
-     * @param resolvers - Any additional placeholders to be parsed
-     * @return - The parsed Component
-     */
-    public static Component parsePlayer(String input, Player player, TagResolver... resolvers) {
-        return deserialize(input,
-            TagResolver.resolver(
-                Placeholder.component("player-name", player.name()),
-                Placeholder.component("player-display-name", player.displayName())
-            ),
-            TagResolver.resolver(resolvers)
-        );
-    }
-
-    /**
      * Method to parse a String for MiniMessage syntax, with placeholders for the plugin's prefix and version
      *
      * @param input - The String to parse
@@ -73,6 +66,23 @@ public class MiniParser {
             TagResolver.resolver(
                 Placeholder.parsed("prefix", FileAccessor.LOCALE_PREFIX),
                 Placeholder.parsed("version", FileAccessor.LOCALE_VERSION)
+            ),
+            TagResolver.resolver(resolvers)
+        );
+    }
+
+    /**
+     * Method to parse a String for MiniMessage syntax, with placeholders for a Player's username and display name
+     *
+     * @param input - The String to parse
+     * @param resolvers - Any additional placeholders to be parsed
+     * @return - The parsed Component
+     */
+    public static Component parsePlayer(String input, Player player, TagResolver... resolvers) {
+        return deserialize(input,
+            TagResolver.resolver(
+                Placeholder.component("player-name", player.name()),
+                Placeholder.component("player-display-name", player.displayName())
             ),
             TagResolver.resolver(resolvers)
         );
