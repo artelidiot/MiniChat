@@ -1,59 +1,62 @@
-package me.artel.minichat.checks.impl;
+package me.artel.minichat.checks;
 
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import me.artel.minichat.checks.MiniCheck;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import me.artel.minichat.files.FileAccessor;
+import me.artel.minichat.logic.Check;
 import me.artel.minichat.util.MiniParser;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 
-public class UppercaseCheck implements MiniCheck {
+public class UppercaseCheck extends Check {
     private static final Pattern uppercasePattern = Pattern.compile("\\p{Lu}");
-    private static final Pattern lowercasePattern = Pattern.compile("\\p{Ll}");
 
-    public static boolean chat(Player player, Component input) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_UPPERCASE)) {
+    @Override
+    public boolean chat(AsyncChatEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_UPPERCASE)) {
             return false;
         }
 
-        return uppercase(player, MiniParser.serializeToPlainText(input), Action.CHAT);
+        return uppercase(e.getPlayer(), MiniParser.serializeToPlainText(e.message()), Action.CHAT);
     }
 
-    public static boolean command(Player player, String input) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_UPPERCASE)) {
+    @Override
+    public boolean command(PlayerCommandPreprocessEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_UPPERCASE)) {
             return false;
         }
 
-        return uppercase(player, input, Action.COMMAND);
+        return uppercase(e.getPlayer(), e.getMessage(), Action.COMMAND);
     }
 
-    public static Component handle(Player player, Component input, Cancellable e) {
+    @Override
+    public void handle(AsyncChatEvent e) {
         if (isBlocking(Action.CHAT)) {
             e.setCancelled(true);
         } else {
-            input = input.replaceText(TextReplacementConfig.builder()
-                .match(uppercasePattern)
-                .replacement(lowercasePattern.pattern())
-                .build());
+            e.message(
+                e.message()
+                    .replaceText(TextReplacementConfig.builder()
+                    .match(uppercasePattern)
+                    .replacement((match, builder) -> builder.content(match.group().toLowerCase(Locale.ROOT)))
+                    .build())
+            );
         }
-
-        return input;
     }
 
-    public static String handle(Player player, String input, Cancellable e) {
+    @Override
+    public void handle(PlayerCommandPreprocessEvent e) {
         if (isBlocking(Action.COMMAND)) {
             e.setCancelled(true);
         } else {
-            input = input.toLowerCase();
+            e.setMessage(e.getMessage().toLowerCase(Locale.ROOT));
         }
-
-        return input;
     }
 
     private static boolean uppercase(Player player, String input, Action action) {
@@ -130,7 +133,7 @@ public class UppercaseCheck implements MiniCheck {
             // Get the average of ones vs. zeros, then multiply by 100 to make it a 0-100 scale
             .getAverage()) * 100;
 
-        if (uppercasePercentage > minimumPercentage) {
+        if (uppercasePercentage >= minimumPercentage) {
             var uppercaseMessage = action.equals(Action.CHAT)
                 ? FileAccessor.LOCALE_CHAT_UPPERCASE
                 : FileAccessor.LOCALE_COMMAND_UPPERCASE;

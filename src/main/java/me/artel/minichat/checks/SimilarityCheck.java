@@ -1,4 +1,4 @@
-package me.artel.minichat.checks.impl;
+package me.artel.minichat.checks;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -7,48 +7,51 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import lombok.Getter;
-import me.artel.minichat.checks.MiniCheck;
 import me.artel.minichat.files.FileAccessor;
+import me.artel.minichat.logic.Check;
 import me.artel.minichat.util.MiniParser;
 import me.artel.minichat.util.MiniUtil;
-import net.kyori.adventure.text.Component;
 
-public class SimilarityCheck implements MiniCheck {
+public class SimilarityCheck extends Check {
     @Getter
     private static final HashMap<UUID, String>
         chatHistoryMap = new HashMap<>(),
         commandHistoryMap = new HashMap<>();
 
-    public static boolean chat(Player player, Component input) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_SIMILARITY)) {
+    @Override
+    public boolean chat(AsyncChatEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_SIMILARITY)) {
             return false;
         }
 
-        return similar(player, MiniParser.serializeToPlainText(input), Action.CHAT);
+        return similar(e.getPlayer(), MiniParser.serializeToPlainText(e.message()), Action.CHAT);
     }
 
-    public static boolean command(Player player, String input) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_SIMILARITY)) {
+    @Override
+    public boolean command(PlayerCommandPreprocessEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_SIMILARITY)) {
             return false;
         }
 
-        return similar(player, input, Action.COMMAND);
+        return similar(e.getPlayer(), e.getMessage(), Action.COMMAND);
     }
 
-    public static void handle(Player player, Cancellable e) {
-        // TODO: Send message here?
+    @Override
+    public void handle(AsyncChatEvent e) {
         e.setCancelled(true);
     }
 
-    private static boolean similar(Player player, String input, Action action) {
-        // If the input is blank, do nothing
-        if (input.isBlank()) {
-            return false;
-        }
+    @Override
+    public void handle(PlayerCommandPreprocessEvent e) {
+        e.setCancelled(true);
+    }
 
+    // TODO: Figure out why uppercase violations are causing this not to flag
+    private static boolean similar(Player player, String input, Action action) {
         var similarity = action.equals(Action.CHAT)
             ? FileAccessor.OPTIONS_CHAT_SIMILARITY
             : FileAccessor.OPTIONS_COMMAND_SIMILARITY;
@@ -110,13 +113,13 @@ public class SimilarityCheck implements MiniCheck {
             ? FileAccessor.OPTIONS_CHAT_SIMILARITY_THRESHOLD
             : FileAccessor.OPTIONS_COMMAND_SIMILARITY_THRESHOLD;
 
-        // Check if the input's length exceeds the threshold for this check
-        if (input.length() < threshold) {
+        // Check if the input is blank or input's length doesn't meet the threshold
+        if (input.isBlank() || input.length() < threshold) {
             return false;
         }
 
         // Check if the input's similarity to the previous data exceeds the threshold
-        if ((MiniUtil.getJaroWinkler().similarity(input, historyContent) * 100) > similarity) {
+        if ((MiniUtil.getJaroWinkler().similarity(input, historyContent) * 100) >= similarity) {
             var similarityMessage = action.equals(Action.CHAT)
                 ? FileAccessor.LOCALE_CHAT_SIMILARITY
                 : FileAccessor.LOCALE_COMMAND_SIMILARITY;

@@ -1,18 +1,59 @@
-package me.artel.minichat.checks;
+package me.artel.minichat.logic;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import com.google.common.collect.ImmutableList;
+
+import io.papermc.paper.event.player.AsyncChatEvent;
 import lombok.Getter;
 import me.artel.minichat.MiniChatPlugin;
-import me.artel.minichat.checks.impl.DelayCheck;
-import me.artel.minichat.checks.impl.ParrotCheck;
-import me.artel.minichat.checks.impl.SimilarityCheck;
+import me.artel.minichat.checks.DelayCheck;
+import me.artel.minichat.checks.MovementCheck;
+import me.artel.minichat.checks.ParrotCheck;
+import me.artel.minichat.checks.SimilarityCheck;
+import me.artel.minichat.checks.UppercaseCheck;
 import me.artel.minichat.files.FileAccessor;
 import me.artel.minichat.util.MiniParser;
 import net.kyori.adventure.text.Component;
 
-public interface MiniCheck {
+public abstract class Check {
+    @Getter
+    private static final ImmutableList<Check> checks = ImmutableList.<Check>builder()
+        .add(new DelayCheck())
+        .add(new MovementCheck())
+        .add(new ParrotCheck())
+        .add(new SimilarityCheck())
+        .add(new UppercaseCheck())
+        .build();
+
+    @Getter
+    public enum Action {
+        CHAT("chat"), COMMAND("command");
+
+        final String actionName;
+
+        Action(String actionName) {
+            this.actionName = actionName;
+        }
+    }
+
+    public boolean chat(AsyncChatEvent e) {
+        return false;
+    }
+
+    public void handle(AsyncChatEvent e) {
+        return;
+    }
+
+    public boolean command(PlayerCommandPreprocessEvent e) {
+        return false;
+    }
+
+    public void handle(PlayerCommandPreprocessEvent e) {
+        return;
+    }
 
     public static void updateChatData(Player player, Component chatMessage) {
         if (!player.hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_DELAY)) {
@@ -40,17 +81,6 @@ public interface MiniCheck {
 
         if (!player.hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_SIMILARITY)) {
             SimilarityCheck.getCommandHistoryMap().put(player.getUniqueId(), command);
-        }
-    }
-
-    @Getter
-    enum Action {
-        CHAT("chat"), COMMAND("command");
-
-        final String actionName;
-
-        Action(String actionName) {
-            this.actionName = actionName;
         }
     }
 }

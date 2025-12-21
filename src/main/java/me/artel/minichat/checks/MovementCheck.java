@@ -1,37 +1,45 @@
-package me.artel.minichat.checks.impl;
+package me.artel.minichat.checks;
 
 import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import me.artel.minichat.checks.MiniCheck;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import me.artel.minichat.files.FileAccessor;
+import me.artel.minichat.logic.Check;
 import me.artel.minichat.util.MiniParser;
 
-public class MovementCheck implements MiniCheck {
+public class MovementCheck extends Check {
     private static final HashMap<UUID, Location> movementRequiredMap = new HashMap<>();
 
-    public static boolean chat(Player player) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_MOVEMENT)) {
+    @Override
+    public boolean chat(AsyncChatEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_MOVEMENT)) {
             return false;
         }
 
-        return movement(player, Action.CHAT);
+        return movement(e.getPlayer(), Action.CHAT);
     }
 
-    public static boolean command(Player player) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_MOVEMENT)) {
+    @Override
+    public boolean command(PlayerCommandPreprocessEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_MOVEMENT)) {
             return false;
         }
 
-        return movement(player, Action.COMMAND);
+        return movement(e.getPlayer(), Action.COMMAND);
     }
 
-    public static void handle(Player player, Cancellable e) {
-        // TODO: Send message here?
+    @Override
+    public void handle(AsyncChatEvent e) {
+        e.setCancelled(true);
+    }
+
+    @Override
+    public void handle(PlayerCommandPreprocessEvent e) {
         e.setCancelled(true);
     }
 
@@ -70,5 +78,19 @@ public class MovementCheck implements MiniCheck {
     private static double distanceMoved(Player player) {
         // Check the distance (in blocks) to the player's login location
         return player.getLocation().distance(movementRequiredMap.get(player.getUniqueId()));
+    }
+
+    /**
+     * Add a player to the movement requirement map
+     *
+     * @param player - The player to add
+     */
+    public static void addPlayer(Player player) {
+        // If the player has both bypass permissions, ignore them
+        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_MOVEMENT) && player.hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_MOVEMENT)) {
+            return;
+        }
+
+        movementRequiredMap.put(player.getUniqueId(), player.getLocation());
     }
 }

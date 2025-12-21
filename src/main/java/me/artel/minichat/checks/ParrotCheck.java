@@ -1,33 +1,33 @@
-package me.artel.minichat.checks.impl;
+package me.artel.minichat.checks;
 
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import lombok.Setter;
-import me.artel.minichat.checks.MiniCheck;
 import me.artel.minichat.files.FileAccessor;
+import me.artel.minichat.logic.Check;
 import me.artel.minichat.util.MiniParser;
 import me.artel.minichat.util.MiniUtil;
-import net.kyori.adventure.text.Component;
 
-public class ParrotCheck implements MiniCheck {
+public class ParrotCheck extends Check {
     @Setter
     private static String latestMessage = null;
 
-    public static boolean chat(Player player, Component input) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_PARROT)) {
+    @Override
+    public boolean chat(AsyncChatEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_PARROT)) {
             return false;
         }
 
-        return parrot(player, MiniParser.serializeToPlainText(input));
+        return parrot(e.getPlayer(), MiniParser.serializeToPlainText(e.message()));
     }
 
-    public static void handle(Player player, Cancellable e) {
-        // TODO: Send message here?
+    @Override
+    public void handle(AsyncChatEvent e) {
         e.setCancelled(true);
     }
 
@@ -84,7 +84,7 @@ public class ParrotCheck implements MiniCheck {
         }
 
         // Check if the input's similarity to the previous data exceeds the threshold
-        if ((MiniUtil.getJaroWinkler().similarity(input, processedLatestMessage) * 100) > FileAccessor.OPTIONS_CHAT_PARROTING) {
+        if ((MiniUtil.getJaroWinkler().similarity(input, processedLatestMessage) * 100) >= FileAccessor.OPTIONS_CHAT_PARROTING) {
             // Notify the player
             player.sendMessage(MiniParser.parseAll(FileAccessor.LOCALE_CHAT_PARROT, player));
             // Their message is too similar, cancel it

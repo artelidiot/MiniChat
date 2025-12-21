@@ -29,17 +29,17 @@ public class MiniUtil {
     }
 
     /**
-     * Method to return elapsed nanoseconds since the specified start time
+     * Method to return elapsed time since the specified start time
      *
      * @param startTime - The start time in nanoseconds
-     * @param timeUnit - The {@link TimeUnit} to be converted to
-     * @return - Elapsed time from nanoseconds
+     * @param timeUnit - The {@link TimeUnit} to convert to
+     * @return - Elapsed time in the specified {@link TimeUnit}
      */
     public static long elapsedTime(long startTime, TimeUnit timeUnit) {
         // Subtract the start time from the current time
         long elapsedTime = System.nanoTime() - startTime;
 
-        return TimeUnit.NANOSECONDS.convert(elapsedTime, timeUnit);
+        return timeUnit.convert(elapsedTime, TimeUnit.NANOSECONDS);
     }
 
     /**

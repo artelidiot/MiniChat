@@ -11,22 +11,17 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import me.artel.minichat.checks.MiniCheck;
-import me.artel.minichat.checks.impl.DelayCheck;
-import me.artel.minichat.checks.impl.MovementCheck;
-import me.artel.minichat.checks.impl.ParrotCheck;
-import me.artel.minichat.checks.impl.SimilarityCheck;
-import me.artel.minichat.checks.impl.UppercaseCheck;
+import me.artel.minichat.checks.MovementCheck;
 import me.artel.minichat.files.FileAccessor;
 import me.artel.minichat.logic.Formatter;
 import me.artel.minichat.logic.MOTD;
+import me.artel.minichat.logic.Check;
 import me.artel.minichat.logic.Rule;
 
 public class PlayerListeners implements Listener {
 
     @EventHandler // No coyotes were harmed in the making of this listener
     public void onAnvilPrepare(PrepareAnvilEvent e) {
-        // TODO: Apparently all #getRenameText() methods are being deprecated?
         String renameText = e.getView().getRenameText();
 
         // We don't need to do anything if the rename text is blank
@@ -54,24 +49,14 @@ public class PlayerListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerChat(AsyncChatEvent e) {
-        if (DelayCheck.chat(e.getPlayer())) {
-            DelayCheck.handle(e.getPlayer(), e);
-        }
+        for (Check check : Check.getChecks()) {
+            if (check.chat(e)) {
+                check.handle(e);
+            }
 
-        if (MovementCheck.chat(e.getPlayer())) {
-            MovementCheck.handle(e.getPlayer(), e);
-        }
-
-        if (ParrotCheck.chat(e.getPlayer(), e.message())) {
-            ParrotCheck.handle(e.getPlayer(), e);
-        }
-
-        if (SimilarityCheck.chat(e.getPlayer(), e.message())) {
-            SimilarityCheck.handle(e.getPlayer(), e);
-        }
-
-        if (UppercaseCheck.chat(e.getPlayer(), e.message())) {
-            UppercaseCheck.handle(e.getPlayer(), e.message(), e);
+            if (e.isCancelled()) {
+                return;
+            }
         }
 
         for (Rule rule : Rule.rules()) {
@@ -79,6 +64,11 @@ public class PlayerListeners implements Listener {
             if (rule.checkChat()) {
                 // Handle violations for the rule
                 e.message(rule.catcher(e.getPlayer(), e.message(), e));
+            }
+
+            // Return if a rule cancelled the event
+            if (e.isCancelled()) {
+                return;
             }
         }
 
@@ -88,25 +78,19 @@ public class PlayerListeners implements Listener {
             e.renderer(ChatRenderer.viewerUnaware((player, playerDisplayName, message) -> Formatter.get(player, message)));
         }
 
-        MiniCheck.updateChatData(e.getPlayer(), e.message());
+        Check.updateChatData(e.getPlayer(), e.message());
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
-        if (DelayCheck.command(e.getPlayer())) {
-            DelayCheck.handle(e.getPlayer(), e);
-        }
+        for (Check check : Check.getChecks()) {
+            if (check.command(e)) {
+                check.handle(e);
+            }
 
-        if (MovementCheck.command(e.getPlayer())) {
-            MovementCheck.handle(e.getPlayer(), e);
-        }
-
-        if (SimilarityCheck.command(e.getPlayer(), e.getMessage())) {
-            SimilarityCheck.handle(e.getPlayer(), e);
-        }
-
-        if (UppercaseCheck.command(e.getPlayer(), e.getMessage())) {
-            UppercaseCheck.handle(e.getPlayer(), e.getMessage(), e);
+            if (e.isCancelled()) {
+                return;
+            }
         }
 
         for (Rule rule : Rule.rules()) {
@@ -115,9 +99,14 @@ public class PlayerListeners implements Listener {
                 // Handle violations for the rule
                 e.setMessage(rule.catcher(e.getPlayer(), e.getMessage(), e));
             }
+
+            // Return if a rule cancelled the event
+            if (e.isCancelled()) {
+                return;
+            }
         }
 
-        MiniCheck.updateCommandData(e.getPlayer(), e.getMessage());
+        Check.updateCommandData(e.getPlayer(), e.getMessage());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -127,6 +116,10 @@ public class PlayerListeners implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
+        if (FileAccessor.OPTIONS_MOVEMENT_REQUIRED_CHAT || FileAccessor.OPTIONS_MOVEMENT_REQUIRED_COMMAND) {
+            MovementCheck.addPlayer(e.getPlayer());
+        }
+
         if (FileAccessor.MOTD_ENABLED) {
             MOTD.sendRandom(e.getPlayer());
         }

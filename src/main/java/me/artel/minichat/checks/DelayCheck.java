@@ -1,43 +1,51 @@
-package me.artel.minichat.checks.impl;
+package me.artel.minichat.checks;
 
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import lombok.Getter;
-import me.artel.minichat.checks.MiniCheck;
 import me.artel.minichat.files.FileAccessor;
+import me.artel.minichat.logic.Check;
 import me.artel.minichat.util.MiniParser;
 import me.artel.minichat.util.MiniUtil;
 
-public class DelayCheck implements MiniCheck {
+public class DelayCheck extends Check {
     // TODO: Use a Caffeine cache? Might be *slightly* more efficient than a map in this use case thanks to an #expireAfterWrite call
     @Getter
     private static final HashMap<UUID, Long>
         chatDelayMap = new HashMap<>(),
         commandDelayMap = new HashMap<>();
 
-    public static boolean chat(Player player) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_DELAY)) {
+    @Override
+    public boolean chat(AsyncChatEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_CHAT_DELAY)) {
             return false;
         }
 
-        return delay(player, Action.CHAT);
+        return delay(e.getPlayer(), Action.CHAT);
     }
 
-    public static boolean command(Player player) {
-        if (player.hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_DELAY)) {
+    @Override
+    public boolean command(PlayerCommandPreprocessEvent e) {
+        if (e.getPlayer().hasPermission(FileAccessor.PERMISSION_BYPASS_COMMAND_DELAY)) {
             return false;
         }
 
-        return delay(player, Action.COMMAND);
+        return delay(e.getPlayer(), Action.COMMAND);
     }
 
-    public static void handle(Player player, Cancellable e) {
-        // TODO: Send message here?
+    @Override
+    public void handle(AsyncChatEvent e) {
+        e.setCancelled(true);
+    }
+
+    @Override
+    public void handle(PlayerCommandPreprocessEvent e) {
         e.setCancelled(true);
     }
 
@@ -54,7 +62,7 @@ public class DelayCheck implements MiniCheck {
 
             // Check if the elapsed time is greater than the configured value
             // TODO: Write time handlers (seconds, milliseconds, etc.)
-            if (MiniUtil.elapsedTime(delayMap.getOrDefault(player.getUniqueId(), -1L), TimeUnit.MILLISECONDS) >= delay) {
+            if (MiniUtil.elapsedTime(delayMap.get(player.getUniqueId()), TimeUnit.MILLISECONDS) >= delay) {
                 // The elapsed time has passed the value, remove the player
                 delayMap.remove(player.getUniqueId());
                 return false;
