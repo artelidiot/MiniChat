@@ -6,10 +6,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import lombok.Getter;
+import me.artel.minichat.MiniChatPlugin;
 import me.artel.minichat.files.FileAccessor;
 import me.artel.minichat.files.FileManager;
 import me.artel.minichat.util.MiniParser;
@@ -20,7 +22,6 @@ public class MOTD {
     @Getter
     private static final ArrayList<MOTD> motds = new ArrayList<>();
 
-    private static MOTD instance;
     private String identifier;
     private boolean enabled;
     private int delay;
@@ -42,9 +43,9 @@ public class MOTD {
         this.identifier = motdNode.node("id").getString("");
 
         // Create the MOTD
-        this.delay = motdNode.node("delay").getInt(0);
-        // Make the delay operate in milliseconds by dividing the value by 50.
-        // TODO: Add time syntax here
+        // TODO: Add time syntax to the delay
+        this.delay = MiniUtil.clampMin(motdNode.node("delay").getInt(0), 0);
+        // Make the delay operate in milliseconds by dividing the value by 50
         this.delay = (delay > 0) ? (delay / 50) : 0;
         this.content = MiniUtil.getStringFromNodeObject(motdNode.node("content"));
         this.conditions = motdNode.node("conditions")
@@ -58,11 +59,8 @@ public class MOTD {
             })
             .toList();
 
-        // Create an instance of the MOTD for static access
-        instance = this;
-
         // Add this MOTD to the list of enabled MOTDs
-        motds.add(instance);
+        motds.add(this);
     }
 
     /**
@@ -74,17 +72,6 @@ public class MOTD {
 
         // Iterate over anything in the list and try to create a MOTD from it
         FileManager.getMOTD().node("list").childrenList().forEach(MOTD::new);
-    }
-
-    /**
-     * Determines if a player meets the conditions for the specified MOTD
-     *
-     * @param player - The {@link Player} to check against
-     * @param motd - The {@link MOTD} to check against
-     * @return - True if the player meets the conditions for the MOTD
-     */
-    private static boolean canReceive(Player player, MOTD motd) {
-        return motd.conditions.stream().allMatch(predicate -> predicate.test(player));
     }
 
     /**
@@ -107,18 +94,34 @@ public class MOTD {
      * @param player - The {@link Player} to send the content to
      * @apiNote - Filters out MOTDs with unmet conditions
      */
+    // TODO: Reduce streams?
     public static void sendRandom(Player player) {
-        // TODO: Prioritize conditionals or add weighted MOTDs
-        var _motds = motds.stream()
-            .filter(motd -> canReceive(player, motd))
+        var eligible = motds.stream()
+            .filter(motd -> motd.getConditions().stream().allMatch(predicate -> predicate.test(player)))
             .toList();
 
-        if (_motds.isEmpty()) {
+        if (eligible.isEmpty()) {
             return;
         }
 
-        var randomMOTD = _motds.get(ThreadLocalRandom.current().nextInt(_motds.size()));
+        int maxConditions = eligible.stream()
+            .mapToInt(motd -> motd.getConditions().size())
+            .max()
+            .orElse(0);
 
-        player.sendMessage(MiniParser.parseAll(randomMOTD.getContent(), player));
+        var priority = eligible.stream()
+            .filter(motd -> motd.getConditions().size() == maxConditions)
+            .toList();
+
+        var randomMOTD = priority.get(ThreadLocalRandom.current().nextInt(priority.size()));
+
+        if (randomMOTD.getDelay() > 0) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(MiniChatPlugin.getInstance(),
+                () -> player.sendMessage(MiniParser.parseAll(randomMOTD.getContent(), player)),
+                randomMOTD.getDelay()
+            );
+        } else {
+            player.sendMessage(MiniParser.parseAll(randomMOTD.getContent(), player));
+        }
     }
 }

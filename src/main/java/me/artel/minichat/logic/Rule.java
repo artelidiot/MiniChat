@@ -27,7 +27,6 @@ public class Rule {
     @Getter
     private static final ArrayList<Rule> rules = new ArrayList<>();
 
-    private static Rule instance;
     private String identifier;
     private boolean enabled;
     private boolean checkAnvils, checkBooks, checkChat, checkCommands, checkSigns;
@@ -36,6 +35,8 @@ public class Rule {
     private boolean regex;
     private String trigger, response;
     private Pattern triggerPattern;
+    private TextReplacementConfig patternReplacementConfig;
+    private TextReplacementConfig literalReplacementConfig;
     private List<String> commands;
 
     private static final Pattern diacriticPattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+", Pattern.CASE_INSENSITIVE);
@@ -82,11 +83,20 @@ public class Rule {
         try {
             if (regex) {
                 this.triggerPattern = Pattern.compile(trigger, Pattern.CASE_INSENSITIVE);
+                this.patternReplacementConfig = TextReplacementConfig.builder()
+                    .match(triggerPattern)
+                    .replacement(replacement)
+                    .build();
+            } else {
+                this.literalReplacementConfig = TextReplacementConfig.builder()
+                    .matchLiteral(trigger)
+                    .replacement(replacement)
+                    .build();
             }
         } catch (PatternSyntaxException e) {
             this.enabled = false;
             MiniChatPlugin.getInstance().getLogger().warning(
-                    patternException.formatted(identifier, trigger, e.getMessage())
+                patternException.formatted(identifier, trigger, e.getMessage())
             );
             return;
         }
@@ -101,11 +111,8 @@ public class Rule {
             return;
         }
 
-        // Create an instance of the rule for static access
-        instance = this;
-
         // Add this rule to the list of enabled rules
-        rules.add(instance);
+        rules.add(this);
     }
 
     /**
@@ -128,7 +135,7 @@ public class Rule {
      */
     public boolean matcher(Player player, String input) {
         // We don't need to do anything if the input is nothing
-        if (input.isBlank()) {
+        if (input == null || input.isBlank()) {
             return false;
         }
 
@@ -185,19 +192,9 @@ public class Rule {
         if (replace) {
             // Replace the matches with the corresponding trigger
             if (regex) {
-                input = input.replaceText(
-                    TextReplacementConfig.builder()
-                        .match(triggerPattern)
-                        .replacement(replacement)
-                        .build()
-                );
+                input = input.replaceText(patternReplacementConfig);
             } else {
-                input = input.replaceText(
-                    TextReplacementConfig.builder()
-                        .matchLiteral(trigger)
-                        .replacement(replacement)
-                        .build()
-                );
+                input = input.replaceText(literalReplacementConfig);
             }
         } else if (cancel) {
             // Replacement was not desired, cancel the event

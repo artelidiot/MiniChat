@@ -1,5 +1,9 @@
 package me.artel.minichat.listeners;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,6 +21,7 @@ import me.artel.minichat.logic.Formatter;
 import me.artel.minichat.logic.MOTD;
 import me.artel.minichat.logic.Check;
 import me.artel.minichat.logic.Rule;
+import me.artel.minichat.util.MiniParser;
 
 public class PlayerListeners implements Listener {
 
@@ -43,7 +48,26 @@ public class PlayerListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerEditBook(PlayerEditBookEvent e) {
-        // TODO: Figure out how to efficiently modify books with Paper's API
+        var content =
+            Stream.concat(
+                Stream.of(e.getNewBookMeta().title()),
+                e.getNewBookMeta().pages().stream()
+            )
+            .filter(Objects::nonNull)
+            .map(MiniParser::serializeToPlainText)
+            .map(String::trim)
+            .filter(s -> !s.isBlank())
+            .collect(Collectors.joining(" "));
+
+        for (Rule rule : Rule.rules()) {
+            if (rule.checkBooks() && rule.matcher(e.getPlayer(), content)) {
+                if (rule.cancel() || rule.replace()) {
+                    e.setSigning(false);
+                    e.setNewBookMeta(e.getPreviousBookMeta());
+                }
+            }
+        }
+
         e.getPlayer().updateInventory();
     }
 
@@ -111,7 +135,23 @@ public class PlayerListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onSignChange(SignChangeEvent e) {
-        // TODO
+        var content = e.lines().stream()
+            .filter(Objects::nonNull)
+            .map(MiniParser::serializeToPlainText)
+            .map(String::trim)
+            .filter(s -> !s.isBlank())
+            .collect(Collectors.joining(" "));
+
+        for (Rule rule : Rule.rules()) {
+            // Check if this rule is being checked against signs and if it matches
+            if (rule.checkSigns() && rule.matcher(e.getPlayer(), content)) {
+                // Prevent the sign from being created if the rule is being cancelled or replaced
+                // TODO: Allow replacements here?
+                if (rule.cancel() || rule.replace()) {
+                    e.setCancelled(true);
+                }
+            }
+        }
     }
 
     @EventHandler

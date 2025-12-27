@@ -2,21 +2,12 @@ package me.artel.minichat.files;
 
 import java.util.List;
 
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.serialize.SerializationException;
-
-import me.artel.minichat.MiniChatPlugin;
 import me.artel.minichat.util.MiniUtil;
 
 public class FileAccessor {
-    private static final String malformedIgnoreListException = """
-        Error creating ignore list for node: %s
-        All entries must be a String, surrounded by "quotations" or 'apostrophes'!
-        Info: %s
-        """;
 
 
-    // TODO: annoouncements.yml
+    // TODO: announcements.yml
 
 
     // format.yml
@@ -150,51 +141,40 @@ public class FileAccessor {
         MOTD_ENABLED = FileManager.getMOTD().node("enabled").getBoolean(false);
 
 
-        OPTIONS_CHAT_DELAY = FileManager.getOptions().node("chat-delay").getInt(0);
-        OPTIONS_COMMAND_DELAY = FileManager.getOptions().node("command-delay").getInt(0);
+        OPTIONS_CHAT_DELAY = MiniUtil.clampMin(FileManager.getOptions().node("chat-delay").getInt(0), 0);
+        OPTIONS_COMMAND_DELAY = MiniUtil.clampMin(FileManager.getOptions().node("command-delay").getInt(0), 0);
 
         OPTIONS_MOVEMENT_REQUIRED_CHAT = FileManager.getOptions().node("movement-required-chat").getBoolean(false);
         OPTIONS_MOVEMENT_REQUIRED_COMMAND = FileManager.getOptions().node("movement-required-command").getBoolean(false);
 
-        OPTIONS_CHAT_PARROTING = FileManager.getOptions().node("chat-parroting").getInt(0);
-        OPTIONS_CHAT_PARROTING_DECAY = FileManager.getOptions().node("chat-parroting-decay").getInt(5000);
-        OPTIONS_CHAT_PARROTING_THRESHOLD = FileManager.getOptions().node("chat-parroting-threshold").getInt(6);
+        OPTIONS_CHAT_PARROTING = MiniUtil.clamp(FileManager.getOptions().node("chat-parroting").getInt(0), 0, 100);
+        OPTIONS_CHAT_PARROTING_DECAY = MiniUtil.clampMin(FileManager.getOptions().node("chat-parroting-decay").getInt(5000), 0);
+        OPTIONS_CHAT_PARROTING_THRESHOLD = MiniUtil.clampMin(FileManager.getOptions().node("chat-parroting-threshold").getInt(6), 0);
         OPTIONS_CHAT_PARROTING_IGNORE_USERNAMES = FileManager.getOptions().node("chat-parroting-ignore-usernames").getBoolean(false);
-        OPTIONS_CHAT_PARROTING_IGNORE_LIST = getStringList(FileManager.getOptions(), "chat-parroting-ignore-list");
+        OPTIONS_CHAT_PARROTING_IGNORE_LIST = MiniUtil.getStringListFromNode(FileManager.getOptions().node("chat-parroting-ignore-list"));
 
-        OPTIONS_CHAT_SIMILARITY = FileManager.getOptions().node("chat-similarity").getInt(0);
-        OPTIONS_CHAT_SIMILARITY_THRESHOLD = FileManager.getOptions().node("chat-similarity-threshold").getInt(6);
+        OPTIONS_CHAT_SIMILARITY = MiniUtil.clamp(FileManager.getOptions().node("chat-similarity").getInt(0), 0, 100);
+        OPTIONS_CHAT_SIMILARITY_THRESHOLD = MiniUtil.clampMin(FileManager.getOptions().node("chat-similarity-threshold").getInt(6), 0);
         OPTIONS_CHAT_SIMILARITY_IGNORE_USERNAMES = FileManager.getOptions().node("chat-similarity-ignore-usernames").getBoolean(false);
-        OPTIONS_CHAT_SIMILARITY_IGNORE_LIST = getStringList(FileManager.getOptions(), "chat-similarity-ignore-list");
-        OPTIONS_COMMAND_SIMILARITY = FileManager.getOptions().node("command-similarity").getInt(0);
-        OPTIONS_COMMAND_SIMILARITY_THRESHOLD = FileManager.getOptions().node("command-similarity-threshold").getInt(12);
+        OPTIONS_CHAT_SIMILARITY_IGNORE_LIST = MiniUtil.getStringListFromNode(FileManager.getOptions().node("chat-similarity-ignore-list"));
+        OPTIONS_COMMAND_SIMILARITY = MiniUtil.clamp(FileManager.getOptions().node("command-similarity").getInt(0), 0, 100);
+        OPTIONS_COMMAND_SIMILARITY_THRESHOLD = MiniUtil.clampMin(FileManager.getOptions().node("command-similarity-threshold").getInt(12), 0);
         OPTIONS_COMMAND_SIMILARITY_IGNORE_USERNAMES = FileManager.getOptions().node("command-similarity-ignore-usernames").getBoolean(false);
-        OPTIONS_COMMAND_SIMILARITY_IGNORE_LIST = getStringList(FileManager.getOptions(), "command-similarity-ignore-list");
+        OPTIONS_COMMAND_SIMILARITY_IGNORE_LIST = MiniUtil.getStringListFromNode(FileManager.getOptions().node("command-similarity-ignore-list"));
 
-        OPTIONS_CHAT_UPPERCASE = FileManager.getOptions().node("chat-uppercase").getInt(0);
-        OPTIONS_CHAT_UPPERCASE_THRESHOLD = FileManager.getOptions().node("chat-uppercase-threshold").getInt(6);
+        OPTIONS_CHAT_UPPERCASE = MiniUtil.clamp(FileManager.getOptions().node("chat-uppercase").getInt(0), 0, 100);
+        OPTIONS_CHAT_UPPERCASE_THRESHOLD = MiniUtil.clampMin(FileManager.getOptions().node("chat-uppercase-threshold").getInt(6), 0);
         OPTIONS_CHAT_UPPERCASE_ACTION = FileManager.getOptions().node("chat-uppercase-action").getString("block");
         OPTIONS_CHAT_UPPERCASE_IGNORE_USERNAMES = FileManager.getOptions().node("chat-uppercase-ignore-usernames").getBoolean(false);
-        OPTIONS_CHAT_UPPERCASE_IGNORE_LIST = getStringList(FileManager.getOptions(), "chat-uppercase-ignore-list");
-        OPTIONS_COMMAND_UPPERCASE = FileManager.getOptions().node("command-uppercase").getInt(0);
-        OPTIONS_COMMAND_UPPERCASE_THRESHOLD = FileManager.getOptions().node("command-uppercase-threshold").getInt(12);
+        OPTIONS_CHAT_UPPERCASE_IGNORE_LIST = MiniUtil.getStringListFromNode(FileManager.getOptions().node("chat-uppercase-ignore-list"));
+        OPTIONS_COMMAND_UPPERCASE = MiniUtil.clamp(FileManager.getOptions().node("command-uppercase").getInt(0), 0, 100);
+        OPTIONS_COMMAND_UPPERCASE_THRESHOLD = MiniUtil.clampMin(FileManager.getOptions().node("command-uppercase-threshold").getInt(12), 0);
         OPTIONS_COMMAND_UPPERCASE_ACTION = FileManager.getOptions().node("command-uppercase-action").getString("normalize");
         OPTIONS_COMMAND_UPPERCASE_IGNORE_USERNAMES = FileManager.getOptions().node("command-uppercase-ignore-usernames").getBoolean(false);
-        OPTIONS_COMMAND_UPPERCASE_IGNORE_LIST = getStringList(FileManager.getOptions(), "command-uppercase-ignore-list");
+        OPTIONS_COMMAND_UPPERCASE_IGNORE_LIST = MiniUtil.getStringListFromNode(FileManager.getOptions().node("command-uppercase-ignore-list"));
 
 
         RULES_ENABLED = FileManager.getRules().node("enabled").getBoolean(false);
         RULES_STRIP_DIACRITICAL_MARKS = FileManager.getRules().node("strip-diacritical-marks").getBoolean(false);
-    }
-
-    private static List<String> getStringList(ConfigurationNode rootNode, String path) {
-        try {
-            return rootNode.node(path).getList(String.class, List.of());
-        } catch (SerializationException e) {
-            MiniChatPlugin.getInstance().getLogger().warning(
-                malformedIgnoreListException.formatted("", e.getMessage())
-            );
-            return List.of();
-        }
     }
 }

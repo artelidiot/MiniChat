@@ -16,6 +16,12 @@ import net.kyori.adventure.text.TextReplacementConfig;
 
 public class UppercaseCheck extends Check {
     private static final Pattern uppercasePattern = Pattern.compile("\\p{Lu}");
+    private static final TextReplacementConfig uppercaseReplaceConfig = TextReplacementConfig.builder()
+        .match(uppercasePattern)
+        .replacement((match, builder) ->
+            builder.content(match.group().toLowerCase(Locale.ROOT))
+        )
+        .build();
 
     @Override
     public boolean chat(AsyncChatEvent e) {
@@ -40,13 +46,7 @@ public class UppercaseCheck extends Check {
         if (isBlocking(Action.CHAT)) {
             e.setCancelled(true);
         } else {
-            e.message(
-                e.message()
-                    .replaceText(TextReplacementConfig.builder()
-                    .match(uppercasePattern)
-                    .replacement((match, builder) -> builder.content(match.group().toLowerCase(Locale.ROOT)))
-                    .build())
-            );
+            e.message(e.message().replaceText(uppercaseReplaceConfig));
         }
     }
 

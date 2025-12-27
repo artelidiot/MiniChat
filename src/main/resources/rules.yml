@@ -42,7 +42,7 @@ list:
     regex: true
     # The trigger itself
     #   When using RegEx parsing, you must surround the trigger with 'apostrophes' instead of "quotation marks"!
-    trigger: '(?!\p{Sc})([^\p{InBasic_Latin}]+)'
+    trigger: '([^\p{InBasic_Latin}]+)'
     # The message sent to the player when they violate this rule.
     #   This can be left blank or undefined if a message is not desired.
     #   You can access any keys from the locale file by using the "<@key>" syntax.
