@@ -1,44 +1,41 @@
 # Locale file - ${project.name} file, generated with version ${project.version}
 
+
 # Translations for plugin placeholders
 prefix: "[${project.name}]"
 version: "[${project.version}]"
 
 # Translation for the chat being cleared.
-chat-cleared: "<warning-symbol> The chat has been cleared."
+chat-cleared: "<yellow><warning-symbol> The chat has been cleared.</yellow>"
 
 # Translations for the delay checks.
-chat-delay: "<watch-symbol> Please wait <delay> before chatting again."
-command-delay: "<watch-symbol> Please wait <delay> before performing another command."
+chat-delay: "<yellow><watch-symbol> Please wait a moment before chatting again.</yellow>"
+command-delay: "<yellow><watch-symbol> Please wait a moment before performing another command.</yellow>"
 
 # Translations for the movement checks.
-chat-movement: "<warning-symbol> Please move around to send chat messages."
-command-movement: "<warning-symbol> Please move around to perform commands."
+chat-movement: "<yellow><warning-symbol> Please move around to send chat messages.</yellow>"
+command-movement: "<yellow><warning-symbol> Please move around to perform commands.</yellow>"
 
 # Translations for the parrot check.
-chat-parrot: "<warning-symbol> Try not to send chat messages similar to someone else's chat message."
+chat-parrot: "<yellow><warning-symbol> Try not to send chat messages similar to someone else's chat message.</yellow>"
 
 # Translations for the similarity checks.
-chat-similarity: "<warning-symbol> Try not to send similar chat messages."
-command-similarity: "<warning-symbol> Try not to perform similar commands."
+chat-similarity: "<yellow><warning-symbol> Try not to send similar chat messages.</yellow>"
+command-similarity: "<yellow><warning-symbol> Try not to perform similar commands.</yellow>"
 
 # Translations for the uppercase checks.
-chat-uppercase: "<warning-symbol> Try not to use excessive uppercase in chat messages."
-command-uppercase: "<warning-symbol> Try not to use excessive uppercase in commands."
+chat-uppercase: "<yellow><warning-symbol> Try not to use excessive uppercase in chat messages.</yellow>"
+command-uppercase: "<yellow><warning-symbol> Try not to use excessive uppercase in commands.</yellow>"
 
 # Translation for the 'unicode' rule response.
-unicode: "<warning-symbol> Please do not use special characters."
+unicode: "<yellow><warning-symbol> Please do not use special characters.</yellow>"
 
-# Translation for the help command.
-command-help:
-  - "<prefix> <version>"
-  - "/<command-label> reload - Reload the configuration files."
 # Translation for a successful chat clear.
-command-clear-successful: "<prefix> Successfully cleared the chat."
+command-clear-successful: "<green><prefix> Successfully cleared the chat.</green>"
 # Translation for a successful reload.
-command-reload-successful: "<prefix> Successfully reloaded the configuration files."
+command-reload-successful: "<green><prefix> Successfully reloaded the configuration files.</green>"
 # Translation for an unsuccessful reload.
 command-reload-unsuccessful:
-  - "<prefix> Encountered an error when reloading the configuration files!"
-  - "<prefix> Affected value(s) will fall back to the default setting."
-  - "<prefix> Please check the console for more details."
+  - "<yellow><prefix> Encountered an error when reloading the configuration files!</yellow>"
+  - "<yellow><prefix> Affected value(s) will fall back to the default setting.</yellow>"
+  - "<yellow><prefix> Please check the console for more details.</yellow>"

@@ -1,35 +1,90 @@
 package me.artel.minichat.logic;
 
-import java.util.Map;
+import java.util.function.Predicate;
 
 import org.bukkit.entity.Player;
+import org.spongepowered.configurate.ConfigurationNode;
+
+import com.google.common.collect.ImmutableMap;
 
 import lombok.Getter;
 
 public class Conditional {
 
     @FunctionalInterface
-    public interface Requirement {
-        boolean test(Player player, Object object);
+    public interface Condition {
+        Predicate<Player> fromNode(ConfigurationNode node);
     }
 
     @Getter
-    private static Map<String, Requirement> playerRequirements = Map.ofEntries(
-        // TODO: X, Y, Z + Evaluations
-        Map.entry("world", (p, v) -> p.getWorld().getName().equalsIgnoreCase((String) v)),
-        Map.entry("dimension", (p, v) -> p.getWorld().getEnvironment().name().equalsIgnoreCase((String) v)),
-        Map.entry("has-permission", (p, v) -> p.hasPermission((String) v)),
-        Map.entry("is-blocking", (p, v) -> p.isBlocking() == (Boolean) v),
-        Map.entry("is-climbing", (p, v) -> p.isClimbing() == (Boolean) v),
-        Map.entry("is-flying", (p, v) -> p.isFlying() == (Boolean) v),
-        Map.entry("is-gliding", (p, v) -> p.isGliding() == (Boolean) v),
-        Map.entry("is-jumping", (p, v) -> p.isJumping() == (Boolean) v),
-        Map.entry("is-riptiding", (p, v) -> p.isRiptiding() == (Boolean) v),
-        Map.entry("is-sneaking", (p, v) -> p.isSneaking() == (Boolean) v),
-        Map.entry("is-sprinting", (p, v) -> p.isSprinting() == (Boolean) v),
-        Map.entry("is-swimming", (p, v) -> p.isSwimming() == (Boolean) v),
-        Map.entry("has-played-before", (p, v) -> p.hasPlayedBefore() == (Boolean) v)
-    );
+    private static final ImmutableMap<String, Condition> playerConditions = ImmutableMap.<String, Condition>builder()
+        .put("has-permission", node -> {
+            String expected = node.getString();
+
+            return p -> p.hasPermission(expected);
+        })
+        .put("has-played-before", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.hasPlayedBefore() == expected;
+        })
+        .put("in-dimension", node -> {
+            String expected = node.getString();
+
+            return p -> p.getWorld().getEnvironment().toString().equalsIgnoreCase(expected)
+                || p.getWorld().getEnvironment().name().equalsIgnoreCase(expected);
+        })
+        .put("in-world", node -> {
+            String expected = node.getString();
+
+            return p -> p.getWorld().getName().equalsIgnoreCase(expected);
+        })
+        .put("is-blocking", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isBlocking() == expected;
+        })
+        .put("is-climbing", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isClimbing() == expected;
+        })
+        .put("is-flying", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isFlying() == expected;
+        })
+        .put("is-gliding", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isGliding() == expected;
+        })
+        .put("is-jumping", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isJumping() == expected;
+        })
+        .put("is-riptiding", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isRiptiding() == expected;
+        })
+        .put("is-sneaking", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isSneaking() == expected;
+        })
+        .put("is-sprinting", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isSprinting() == expected;
+        })
+        .put("is-swimming", node -> {
+            boolean expected = node.getBoolean();
+
+            return p -> p.isSwimming() == expected;
+        })
+        .build();
 
     // TODO
     enum Evaluation {

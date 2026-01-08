@@ -28,7 +28,6 @@ public class Rule {
     private static final ArrayList<Rule> rules = new ArrayList<>();
 
     private String identifier;
-    private boolean enabled;
     private boolean checkAnvils, checkBooks, checkChat, checkCommands, checkSigns;
     private boolean cancel, replace;
     private String replacement;
@@ -52,17 +51,7 @@ public class Rule {
         Info: %s
         """;
 
-    public Rule(ConfigurationNode ruleNode) {
-        // We don't need to do anything at all if rules are not enabled
-        if (!FileAccessor.RULES_ENABLED) {
-            return;
-        }
-
-        // We don't need to do anything if the rule itself isn't enabled
-        if (!ruleNode.node("enabled").getBoolean(false)) {
-            return;
-        }
-
+    public Rule(ConfigurationNode ruleNode, List<String> commands) {
         // Create the identifier for the rule
         this.identifier = ruleNode.node("id").getString();
 
@@ -80,36 +69,20 @@ public class Rule {
         this.trigger = ruleNode.node("trigger").getString("");
         this.response = ruleNode.node("response").getString("");
 
-        try {
-            if (regex) {
-                this.triggerPattern = Pattern.compile(trigger, Pattern.CASE_INSENSITIVE);
-                this.patternReplacementConfig = TextReplacementConfig.builder()
-                    .match(triggerPattern)
-                    .replacement(replacement)
-                    .build();
-            } else {
-                this.literalReplacementConfig = TextReplacementConfig.builder()
-                    .matchLiteral(trigger)
-                    .replacement(replacement)
-                    .build();
-            }
-        } catch (PatternSyntaxException e) {
-            this.enabled = false;
-            MiniChatPlugin.getInstance().getLogger().warning(
-                patternException.formatted(identifier, trigger, e.getMessage())
-            );
-            return;
+        if (regex) {
+            this.triggerPattern = Pattern.compile(trigger, Pattern.CASE_INSENSITIVE);
+            this.patternReplacementConfig = TextReplacementConfig.builder()
+                .match(triggerPattern)
+                .replacement(replacement)
+                .build();
+        } else {
+            this.literalReplacementConfig = TextReplacementConfig.builder()
+                .matchLiteral(trigger)
+                .replacement(replacement)
+                .build();
         }
 
-        try {
-            this.commands = ruleNode.node("commands").getList(String.class, List.of());
-        } catch (SerializationException e) {
-            this.enabled = false;
-            MiniChatPlugin.getInstance().getLogger().warning(
-                malformedCommandException.formatted(identifier, e.getMessage())
-            );
-            return;
-        }
+        this.commands = commands;
 
         // Add this rule to the list of enabled rules
         rules.add(this);
@@ -122,8 +95,68 @@ public class Rule {
         // Clear any existing rules so we don't add duplicates
         rules.clear();
 
+        // We don't need to do anything at all if rules are not enabled
+        if (!FileAccessor.RULES_ENABLED) {
+            return;
+        }
+
         // Iterate over anything in the list and try to create a rule from it
-        FileManager.getRules().node("list").childrenList().forEach(Rule::new);
+        FileManager.getRules().node("list")
+            .childrenList()
+            .forEach(ruleNode -> {
+                // We don't need to do anything if the rule itself isn't enabled
+                if (!ruleNode.node("enabled").getBoolean(false)) {
+                    return;
+                }
+
+                var id = ruleNode.node("id").getString("unspecified");
+
+                // Make sure the rule's trigger is valid RegEx
+                if (!validatePattern(ruleNode, id)) {
+                    return;
+                }
+
+                // Make sure there's no malformed commands
+                var commands = validateCommands(ruleNode, id);
+                if (commands == null) {
+                    return;
+                }
+
+                // Create the rule
+                new Rule(ruleNode, commands);
+            });
+    }
+
+    private static boolean validatePattern(ConfigurationNode ruleNode, String id) {
+        // We don't need to check this if RegEx isn't enabled for this rule
+        if (!ruleNode.node("regex").getBoolean(false)) {
+            return true;
+        }
+
+        var trigger = ruleNode.node("trigger").getString("");
+
+        try {
+            // Make sure the trigger compiles as a Pattern
+            Pattern.compile(trigger);
+            return true;
+        } catch (PatternSyntaxException e) {
+            // It didn't compile successfully, don't create the rule
+            MiniChatPlugin.getInstance().getLogger()
+                .warning(patternException.formatted(id, trigger, e.getMessage()));
+            return false;
+        }
+    }
+
+    private static List<String> validateCommands(ConfigurationNode ruleNode, String id) {
+        try {
+            // Make sure all command entries (if any) are a valid String
+            return ruleNode.node("commands").getList(String.class, List.of());
+        } catch (SerializationException e) {
+            // One of the entries wasn't a String, don't create the rule
+            MiniChatPlugin.getInstance().getLogger()
+                .warning(malformedCommandException.formatted(id, e.getMessage()));
+            return null;
+        }
     }
 
     /**
@@ -135,7 +168,7 @@ public class Rule {
      */
     public boolean matcher(Player player, String input) {
         // We don't need to do anything if the input is nothing
-        if (input == null || input.isBlank()) {
+        if (input.isBlank()) {
             return false;
         }
 
@@ -252,18 +285,27 @@ public class Rule {
             return;
         }
 
-        for (var command : commands) {
-            // Commands executed from console always have a slash prefix, remove it if present
-            if (command.startsWith("/")) {
-                command = command.substring(1);
-            }
+        Runnable task = () -> {
+            for (var command : commands) {
+                // Commands executed from console always have a slash prefix, remove it if present
+                String parsed = command.startsWith("/")
+                    ? command.substring(1)
+                    : command;
 
-            // Create a variable to finalize the command for the lambda statement
-            // TODO: Make sure components can be used to parse player placeholders; or check if Paper has their own methods
-            String finalCommand = command;
-            // Execute the command explicitly on sync; errors are thrown if async
-            Bukkit.getScheduler().callSyncMethod(MiniChatPlugin.getInstance(),
-                () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
+                // Parse the command for player related placeholders
+                parsed = MiniParser.serializeToPlainText(MiniParser.parsePlayer(parsed, player));
+
+                // Run the command as console
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
+            }
+        };
+
+        if (Bukkit.isPrimaryThread()) {
+            // Run the task directly if we're on the main thread
+            task.run();
+        } else {
+            // We're on an async thread, schedule the task on the main thread
+            Bukkit.getScheduler().runTask(MiniChatPlugin.getInstance(), task);
         }
     }
 
