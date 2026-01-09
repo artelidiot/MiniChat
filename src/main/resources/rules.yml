@@ -52,3 +52,201 @@ list:
     #   We recommend only doing things like this if you have VERY accurate rules to prevent false punishments.
     #   This can be left empty (by using two brackets "[ ]") or undefined if commands are not desired.
     commands: [ ]
+  - id: 'anal'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '\b(a+(\W|\d|_)*n+(\W|\d|_)*a+(\W|\d|_)*l)\b'
+    response: "<@swear>"
+  - id: 'ass'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '\b(a+(\W|\d|_)*s+(\W|\d|_)*s)\b'
+    response: "<@swear>"
+  - id: 'asshole'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(a+(\W|\d|_)*s+(\W|\d|_)*s+(\W|\d|_)*h+(\W|\d|_)*o+(\W|\d|_)*l+(\W|\d|_)*e)'
+    response: "<@swear>"
+  - id: 'bitch'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(b+(\W|\d|_)*i+(\W|\d|_)*t+(\W|\d|_)*c+(\W|\d|_)*h)'
+    response: "<@misogyny>"
+  - id: 'chink'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(c+(\W|\d|_)*h+(\W|\d|_)*i+(\W|\d|_)*n+(\W|\d|_)*k)'
+    response: "<@racism>"
+  - id: 'chode'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(c+(\W|\d|_)*h+(\W|\d|_)*o+(\W|\d|_)*d+(\W|\d|_)*e)'
+    response: "<@swear>"
+  - id: 'clit'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(c+(\W|\d|_)*l+(\W|\d|_)*i+(\W|\d|_)*t)'
+    response: "<@swear>"
+  - id: 'cock'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(c+(\W|\d|_)*o+(\W|\d|_)*c+(\W|\d|_)*k)'
+    response: "<@swear>"
+  - id: 'coon'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(c+(\W|\d|_)*o+(\W|\d|_)*o+(\W|\d|_)*n)'
+    response: "<@racism>"
+  - id: 'cum'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '\b(c+(\W|\d|_)*u+(\W|\d|_)*m)\b'
+    response: "<@swear>"
+  - id: 'cunt'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(c+(\W|\d|_)*u+(\W|\d|_)*n+(\W|\d|_)*t)'
+    response: "<@misogyny>"
+  - id: 'dick'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(d+(\W|\d|_)*i+(\W|\d|_)*c+(\W|\d|_)*k)'
+    response: "<@swear>"
+  - id: 'dumbass'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(d+(\W|\d|_)*u+(\W|\d|_)*m+(\W|\d|_)*b+(\W|\d|_)*a+(\W|\d|_)*s+(\W|\d|_)*s)'
+    response: "<@swear>"
+  - id: 'fag'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(f+(\W|\d|_)*a+(\W|\d|_)*g)'
+    response: "<@discrimination>"
+  - id: 'fuck'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(f+(\W|\d|_)*u+(\W|\d|_)*c+(\W|\d|_)*k)'
+    response: "<@swear>"
+  - id: 'nigga'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(n+(\W|\d|_)*i+(\W|\d|_)*g+(\W|\d|_)*g+(\W|\d|_)*a)'
+    response: "<@racism>"
+  - id: 'nigger'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(n+(\W|\d|_)*i+(\W|\d|_)*g+(\W|\d|_)*g+(\W|\d|_)*e+(\W|\d|_)*r)'
+    response: "<@racism>"
+  - id: 'penis'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(p+(\W|\d|_)*e+(\W|\d|_)*n+(\W|\d|_)*i+(\W|\d|_)*s)'
+    response: "<@swear>"
+  - id: 'piss'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(p+(\W|\d|_)*i+(\W|\d|_)*s+(\W|\d|_)*s)'
+    response: "<@swear>"
+  - id: 'prick'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(p+(\W|\d|_)*r+(\W|\d|_)*i+(\W|\d|_)*c+(\W|\d|_)*k)'
+    response: "<@swear>"
+  - id: 'pussy'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(p+(\W|\d|_)*u+(\W|\d|_)*s+(\W|\d|_)*s+(\W|\d|_)*y)'
+    response: "<@swear>"
+  - id: 'shit'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(s+(\W|\d|_)*h+(\W|\d|_)*i+(\W|\d|_)*t)'
+    response: "<@swear>"
+  - id: 'slut'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(s+(\W|\d|_)*l+(\W|\d|_)*u+(\W|\d|_)*t)'
+    response: "<@misogyny>"
+  - id: 'spic'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(s+(\W|\d|_)*p+(\W|\d|_)*i+(\W|\d|_)*c)'
+    response: "<@racism>"
+  - id: 'tit'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '\b(t+(\W|\d|_)*i+(\W|\d|_)*t)\b'
+    response: "<@swear>"
+  - id: 'tits'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '\b(t+(\W|\d|_)*i+(\W|\d|_)*t+(\W|\d|_)*s)\b'
+    response: "<@swear>"
+  - id: 'titty'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(t+(\W|\d|_)*i+(\W|\d|_)*t+(\W|\d|_)*t+(\W|\d|_)*y)'
+    response: "<@swear>"
+  - id: 'titties'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(t+(\W|\d|_)*i+(\W|\d|_)*t+(\W|\d|_)*t+(\W|\d|_)*i+(\W|\d|_)*e+(\W|\d|_)*s)'
+    response: "<@swear>"
+  - id: 'tramp'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(t+(\W|\d|_)*r+(\W|\d|_)*a+(\W|\d|_)*m+(\W|\d|_)*p)'
+    response: "<@misogyny>"
+  - id: 'twat'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(t+(\W|\d|_)*w+(\W|\d|_)*a+(\W|\d|_)*t)'
+    response: "<@swear>"
+  - id: 'vagina'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(v+(\W|\d|_)*a+(\W|\d|_)*g+(\W|\d|_)*i+(\W|\d|_)*n+(\W|\d|_)*a)'
+    response: "<@swear>"
+  - id: 'wetback'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(w+(\W|\d|_)*e+(\W|\d|_)*t+(\W|\d|_)*b+(\W|\d|_)*a+(\W|\d|_)*c+(\W|\d|_)*k)'
+    response: "<@racism>"
+  - id: 'whore'
+    enabled: false
+    cancel: true
+    regex: true
+    trigger: '(w+(\W|\d|_)*h+(\W|\d|_)*o+(\W|\d|_)*r+(\W|\d|_)*e)'
+    response: "<@misogyny>"

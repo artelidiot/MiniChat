@@ -66,6 +66,9 @@ public class Rule {
         this.replace = ruleNode.node("replace").getBoolean(false);
         this.replacement = ruleNode.node("replacement").getString("");
         this.regex = ruleNode.node("regex").getBoolean(false);
+        // TODO: Perform normalization passes to prevent easy bypassing on triggers that don't use RegEx
+        // TODO: Add 'triggers' to support building categorized rules
+        //       Improves memory efficiency and performance by reducing iterations and evaluations
         this.trigger = ruleNode.node("trigger").getString("");
         this.response = ruleNode.node("response").getString("");
 

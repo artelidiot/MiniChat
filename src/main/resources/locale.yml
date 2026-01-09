@@ -29,6 +29,14 @@ command-uppercase: "<yellow><warning-symbol> Try not to use excessive uppercase 
 
 # Translation for the 'unicode' rule response.
 unicode: "<yellow><warning-symbol> Please do not use special characters.</yellow>"
+# Translation for the 'discrimination' rule response.
+discrimination: "<red><warning-symbol> Discrimination is not allowed on this server.</red>"
+# Translation for the 'misogyny' rule response.
+misogyny: "<red><warning-symbol> Misogyny is not allowed on this server.</red>"
+# Translation for the 'racism' rule response.
+racism: "<red><warning-symbol> Racism is not allowed on this server.</red>"
+# Translation for the 'swear' rule response.
+swear: "<red><warning-symbol> Swearing is not allowed on this server.</red>"
 
 # Translation for a successful chat clear.
 command-clear-successful: "<green><prefix> Successfully cleared the chat.</green>"
